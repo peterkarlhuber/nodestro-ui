@@ -1,0 +1,59 @@
+{
+  "name": "example",
+  "description": "A second example brand that proves theming: violet primary, square corners and a serif display face. Not a product brand.",
+  "tokens": {
+    "color-accent": {
+      "light": "#8a55c9",
+      "dark": "#c9a8f5"
+    },
+    "color-focus": {
+      "light": "#6b3fa0",
+      "dark": "#c9a8f5"
+    },
+    "color-link": {
+      "light": "#5e3591",
+      "dark": "#c9a8f5"
+    },
+    "color-nav-indicator": {
+      "light": "#6b3fa0",
+      "dark": "#c9a8f5"
+    },
+    "color-on-primary": {
+      "light": "#ffffff",
+      "dark": "#17121f"
+    },
+    "color-primary": {
+      "light": "#6b3fa0",
+      "dark": "#c9a8f5"
+    },
+    "color-primary-active": {
+      "light": "#4a2a70",
+      "dark": "#b48de8"
+    },
+    "color-primary-hover": {
+      "light": "#5a3388",
+      "dark": "#d8bff8"
+    },
+    "color-primary-subtle": {
+      "light": "#f1eafa",
+      "dark": "#2e2340"
+    },
+    "color-selected": {
+      "light": "#ede4f8",
+      "dark": "#2e2340"
+    },
+    "color-warning": {
+      "light": "#8a4b00",
+      "dark": "#f5c26b"
+    },
+    "color-warning-bg": {
+      "light": "#fff3e0",
+      "dark": "#33240a"
+    },
+    "font-display": "Georgia, 'Times New Roman', serif",
+    "radius-lg": "6px",
+    "radius-md": "4px",
+    "radius-sm": "2px",
+    "radius-xl": "8px"
+  }
+}

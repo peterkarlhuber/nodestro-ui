@@ -4,7 +4,7 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, before, describe, it } from "node:test";
@@ -86,5 +86,69 @@ describe("consuming the vendored tarball", () => {
     const result = npm(bad, ["ci"], join(work, "cache-tampered"));
     assert.notEqual(result.status, 0, "npm ci accepted a tampered tarball");
     assert.match(result.stderr, /EINTEGRITY/);
+  });
+});
+
+// All packages together, as a product vendors them. React is the product's (a peer dependency), so the install
+// leaves peers to the product (--legacy-peer-deps, offline); the check is what npm records and what ships.
+describe("consuming every package together", async () => {
+  const { packAll } = await import("../scripts/lib/workspaces.mjs");
+  const packs = await packAll();
+  const manifest = JSON.parse(readFileSync(MANIFEST, "utf-8")).packages;
+  const dir = join(work, "all");
+  let result;
+  before(() => {
+    mkdirSync(join(dir, "vendor"), { recursive: true });
+    const dependencies = {};
+    for (const p of packs) {
+      writeFileSync(join(dir, "vendor", p.file), p.tarball);
+      dependencies[p.name] = `file:vendor/${p.file}`;
+    }
+    writeFileSync(join(dir, "package.json"), JSON.stringify({ name: "consumer-all", version: "1.0.0", private: true, dependencies }));
+    result = spawnSync(NPM, ["install", "--ignore-scripts", "--no-audit", "--no-fund", "--offline", "--legacy-peer-deps", "--cache", join(work, "cache-all")], {
+      cwd: dir,
+      encoding: "utf-8",
+      shell: process.platform === "win32",
+    });
+  });
+  after(() => rmSync(work, { recursive: true, force: true }));
+
+  it("installs offline with the integrity of artifacts/manifest.json for every package", () => {
+    assert.equal(result.status, 0, result.stderr);
+    const lock = JSON.parse(readFileSync(join(dir, "package-lock.json"), "utf-8"));
+    assert.ok(packs.length >= 4);
+    for (const p of packs) {
+      const entry = lock.packages[`node_modules/${p.name}`];
+      assert.equal(entry.integrity, manifest.find((m) => m.name === p.name).integrity, p.name);
+    }
+  });
+
+  it("every export of every package resolves to a shipped file", () => {
+    for (const p of packs) {
+      const pkg = JSON.parse(readFileSync(join(dir, "node_modules", p.name, "package.json"), "utf-8"));
+      for (const [key, target] of Object.entries(pkg.exports)) {
+        const files = typeof target === "string" ? [target] : Object.values(target);
+        for (const file of files) assert.ok(existsSync(join(dir, "node_modules", p.name, file)), `${p.name} ${key} -> ${file}`);
+      }
+    }
+  });
+
+  it("the shipped modules import only React, another package of this repository or their own files", () => {
+    for (const p of packs) {
+      const base = join(dir, "node_modules", p.name);
+      const walk = (d) => readdirSync(d).flatMap((n) => (statSync(join(d, n)).isDirectory() ? walk(join(d, n)) : [join(d, n)]));
+      for (const file of walk(base).filter((f) => /\.(js|d\.ts)$/.test(f))) {
+        const text = readFileSync(file, "utf-8");
+        const specifiers = [
+          ...text.matchAll(/^\s*(?:import|export)\b[^"';]*?\bfrom\s*["']([^"']+)["']/gm),
+          ...text.matchAll(/^\s*import\s*["']([^"']+)["']/gm),
+          ...text.matchAll(/\bimport\s*\(\s*["']([^"']+)["']/g),
+        ];
+        assert.ok(!file.endsWith("index.js") || specifiers.length > 0, `${file}: no imports found`);
+        for (const m of specifiers) {
+          assert.match(m[1], /^(\.\.?\/|react$|react\/jsx-runtime$|@nodestro\/ui-(core|tokens)$)/, `${file}: ${m[1]}`);
+        }
+      }
+    }
   });
 });

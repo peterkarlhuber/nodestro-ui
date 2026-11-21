@@ -1,0 +1,19 @@
+{
+  "name": "@nodestro/ui-themes",
+  "version": "0.1.0",
+  "exports": {
+    "./neutral.css": "./dist/neutral.css",
+    "./nodestro.css": "./dist/nodestro.css",
+    "./example.css": "./dist/example.css",
+    "./themes.json": "./dist/themes.json",
+    "./package.json": "./package.json"
+  },
+  "peerDependencies": {
+    "@nodestro/ui-tokens": "^0.1.0"
+  },
+  "brands": [
+    "example",
+    "neutral",
+    "nodestro"
+  ]
+}

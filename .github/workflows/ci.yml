@@ -1,9 +1,11 @@
 name: CI
 
-# Checks of the UI packages on Node 22 and 24: unit and contract tests (themes, CSS/JSON sync, WCAG contrast, package
-# graph, token mapping, vendored install), the committed artifact manifest (same SHA-256 on both Node versions), and a
-# second build compared byte for byte. No publish, no release. Every action is pinned by commit SHA (version in the
-# comment), as in the other repositories.
+# Checks of the UI packages. `check` (Node 22 and 24): unit and contract tests (themes, CSS/JSON sync, WCAG contrast,
+# package graph, token mapping, vendored install, API contract against master, brand neutrality), the component tests
+# (Vitest, jsdom), the committed artifact manifest (same SHA-256 on both Node versions) and a second build compared byte
+# for byte. `browser`: axe-core (no WCAG A/AA violation) and the visual snapshots of the approval card per brand, in the
+# runner's Google Chrome. No publish, no release. Every action is pinned by commit SHA (version in the comment), as in
+# the other repositories.
 
 on:
   pull_request:
@@ -22,7 +24,7 @@ jobs:
   check:
     name: check (node ${{ matrix.node }})
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -31,13 +33,20 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Fetch master (base of the API contract)
+        run: git fetch --no-tags --depth=1 origin +refs/heads/master:refs/remotes/origin/master
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ matrix.node }}
       - run: npm ci --ignore-scripts
-      - run: npm test
+      - run: npm run test:node
+        env:
+          API_BASE: origin/master
+      - run: npm run test:components
       - name: Tarballs match artifacts/manifest.json
         run: npm run pack:check
+      - name: Recorded API surfaces are current
+        run: npm run api:check
       - name: Token mapping document is current
         run: npm run mapping:check
       - name: Build the tarballs twice (reproducible)
@@ -53,3 +62,28 @@ jobs:
           name: ui-packages
           path: ${{ runner.temp }}/a/
           retention-days: 14
+
+  browser:
+    name: browser (axe, snapshots per brand)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - run: npm ci --ignore-scripts
+      - name: Chrome of the runner
+        run: |
+          echo "CHROME_PATH=$(command -v google-chrome)" >> "$GITHUB_ENV"
+          google-chrome --version
+      - run: npm run test:browser
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: approval-card-screenshots
+          path: test-results/
+          retention-days: 14
+          if-no-files-found: ignore

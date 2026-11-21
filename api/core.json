@@ -1,0 +1,216 @@
+{
+  "name": "@nodestro/ui-core",
+  "version": "0.1.1",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./package.json": "./package.json"
+  },
+  "peerDependencies": {
+    "@nodestro/ui-tokens": "^0.1.0",
+    "react": "^19.0.0"
+  },
+  "declarations": {
+    "Badge.d.ts": [
+      "import type { ReactNode } from \"react\";",
+      "export type Tone = \"neutral\" | \"info\" | \"success\" | \"warning\" | \"danger\" | \"running\" | \"idle\";",
+      "export declare function Badge({ tone, icon, children, className }: { tone?: Tone; icon?: ReactNode; children: ReactNode; className?: string; }): import(\"react\").JSX.Element;"
+    ],
+    "Button.d.ts": [
+      "import { type ButtonHTMLAttributes, type ReactNode } from \"react\";",
+      "export type ButtonVariant = \"primary\" | \"secondary\" | \"danger\" | \"ghost\";",
+      "export type ButtonSize = \"sm\" | \"md\";",
+      "export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> { variant?: ButtonVariant; size?: ButtonSize; busy?: boolean; icon?: ReactNode; }",
+      "export declare const Button: import(\"react\").ForwardRefExoticComponent<ButtonProps & import(\"react\").RefAttributes<HTMLButtonElement>>;",
+      "export interface IconButtonProps extends Omit<ButtonProps, \"children\" | \"icon\"> { label: string; icon: ReactNode; }",
+      "export declare const IconButton: import(\"react\").ForwardRefExoticComponent<IconButtonProps & import(\"react\").RefAttributes<HTMLButtonElement>>;"
+    ],
+    "Collapsible.d.ts": [
+      "import { type ReactNode } from \"react\";",
+      "export interface CollapsibleProps { title: ReactNode; summary?: ReactNode; children: ReactNode; defaultOpen?: boolean; open?: boolean; onOpenChange?: (open: boolean) => void; level?: 2 | 3 | 4 | 5 | 6; className?: string; }",
+      "export declare function Collapsible({ title, summary, children, defaultOpen, open, onOpenChange, level, className }: CollapsibleProps): import(\"react\").JSX.Element;"
+    ],
+    "Dialog.d.ts": [
+      "import { type ReactNode, type RefObject } from \"react\";",
+      "export interface DialogProps { open: boolean; onClose: () => void; title: ReactNode; description?: ReactNode; children?: ReactNode; footer?: ReactNode; initialFocus?: RefObject<HTMLElement | null>; role?: \"dialog\" | \"alertdialog\"; size?: \"sm\" | \"md\" | \"lg\"; className?: string; }",
+      "export declare function Dialog({ open, onClose, title, description, children, footer, initialFocus, role, size, className }: DialogProps): import(\"react\").JSX.Element | null;",
+      "export interface ConfirmDialogProps { open: boolean; title: ReactNode; message: ReactNode; onConfirm: () => void; onCancel: () => void; confirmLabel?: string; cancelLabel?: string; tone?: \"primary\" | \"danger\"; busy?: boolean; }",
+      "export declare function ConfirmDialog({ open, title, message, onConfirm, onCancel, confirmLabel, cancelLabel, tone, busy }: ConfirmDialogProps): import(\"react\").JSX.Element;"
+    ],
+    "Field.d.ts": [
+      "import { type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from \"react\";",
+      "export interface FieldProps { label: ReactNode; hint?: ReactNode; error?: ReactNode; required?: boolean; htmlFor?: string; className?: string; children: ReactNode; }",
+      "export declare function Field({ label, hint, error, required, htmlFor, className, children }: FieldProps): import(\"react\").JSX.Element;",
+      "export type TextInputProps = InputHTMLAttributes<HTMLInputElement>;",
+      "export declare const TextInput: import(\"react\").ForwardRefExoticComponent<TextInputProps & import(\"react\").RefAttributes<HTMLInputElement>>;",
+      "export type TextAreaProps = TextareaHTMLAttributes<HTMLTextAreaElement>;",
+      "export declare const TextArea: import(\"react\").ForwardRefExoticComponent<TextAreaProps & import(\"react\").RefAttributes<HTMLTextAreaElement>>;",
+      "export interface SelectOption { value: string; label: string; disabled?: boolean; }",
+      "export interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, \"onChange\" | \"value\" | \"children\"> { options: readonly SelectOption[]; value: string; onChange: (value: string) => void; }",
+      "export declare const Select: import(\"react\").ForwardRefExoticComponent<SelectProps & import(\"react\").RefAttributes<HTMLSelectElement>>;"
+    ],
+    "HelpTip.d.ts": [
+      "import { type ReactNode } from \"react\";",
+      "import { type HelpEntry } from \"./help.js\";",
+      "export interface HelpTipProps { id?: string; entry?: HelpEntry; topic?: string; className?: string; }",
+      "export declare function HelpTip({ id, entry: given, topic, className }: HelpTipProps): import(\"react\").JSX.Element | null;",
+      "export interface ErrorHelpProps { code: string; children: ReactNode; className?: string; }",
+      "export declare function ErrorHelp({ code, children, className }: ErrorHelpProps): import(\"react\").JSX.Element;"
+    ],
+    "ListDetail.d.ts": [
+      "import { type ReactNode } from \"react\";",
+      "export interface ListItem { id: string; label: ReactNode; description?: ReactNode; }",
+      "export interface ListDetailProps<T extends ListItem> { label: string; items: readonly T[]; selectedId: string | null; onSelect: (id: string) => void; renderDetail: (item: T) => ReactNode; empty?: ReactNode; className?: string; }",
+      "export declare function ListDetail<T extends ListItem>({ label, items, selectedId, onSelect, renderDetail, empty, className }: ListDetailProps<T>): import(\"react\").JSX.Element;"
+    ],
+    "Spinner.d.ts": [
+      "export declare function Spinner({ label, className }: { label?: string; className?: string; }): import(\"react\").JSX.Element;"
+    ],
+    "Tooltip.d.ts": [
+      "import { type ReactElement, type ReactNode } from \"react\";",
+      "export interface TooltipProps { content: ReactNode; children: ReactElement<{ \"aria-describedby\"?: string; }>; placement?: \"top\" | \"bottom\"; className?: string; }",
+      "export declare function Tooltip({ content, children, placement, className }: TooltipProps): import(\"react\").JSX.Element;"
+    ],
+    "help.d.ts": [
+      "import { type ReactNode } from \"react\";",
+      "export interface HelpEntry { title: string; summary: ReactNode; href?: string; }",
+      "export interface HelpRegistry { entries: Readonly<Record<string, HelpEntry>>; errors?: Readonly<Record<string, string>>; }",
+      "export interface HelpContextValue extends HelpRegistry { onOpen?: (id: string, entry: HelpEntry) => void; }",
+      "export declare function HelpProvider({ children, ...value }: HelpContextValue & { children?: ReactNode; }): import(\"react\").JSX.Element;",
+      "export declare function useHelpRegistry(): HelpContextValue;",
+      "export declare function helpIdForError(registry: HelpRegistry, code: string): string | null;",
+      "export declare function isInAppPath(value: string): boolean;",
+      "export declare function safeHelpHref(href: string | undefined): string | undefined;",
+      "export interface HelpCoverage { missing: string[]; dangling: string[]; staleExceptions: string[]; }",
+      "export declare function helpCoverage(codes: readonly string[], registry: HelpRegistry, exceptions?: Readonly<Record<string, string>>): HelpCoverage;"
+    ],
+    "i18n.d.ts": [
+      "import { type ReactNode } from \"react\";",
+      "export declare const LOCALES: readonly [ \"en\", \"de\", \"fr\", \"es\", \"it\", \"pt-BR\" ];",
+      "export type Locale = (typeof LOCALES)[number];",
+      "export type MessageValues = Record<string, string | number>;",
+      "export type Messages = Readonly<Record<string, string>>;",
+      "export type Catalog<K extends string = string> = { readonly [L in Locale]: Readonly<Record<K, string>>; };",
+      "export type Translate = (key: string, values?: MessageValues) => string | undefined;",
+      "export type TextFn<K extends string = string> = (key: K, values?: MessageValues) => string;",
+      "export declare function resolveLocale(tag: string | null | undefined): Locale;",
+      "export declare function interpolate(text: string, values?: MessageValues): string;",
+      "export interface UiTextProviderProps { locale: string; translate?: Translate; children?: ReactNode; }",
+      "export declare function UiTextProvider({ locale, translate, children }: UiTextProviderProps): import(\"react\").JSX.Element;",
+      "export declare function useLocale(): Locale;",
+      "export declare function lookup<K extends string>(catalog: Catalog<K>, locale: Locale, key: K, values?: MessageValues, translate?: Translate): string;",
+      "export declare function useCatalog<K extends string>(catalog: Catalog<K>): TextFn<K>;"
+    ],
+    "index.d.ts": [
+      "export { Badge, type Tone } from \"./Badge.js\";",
+      "export { Button, IconButton, type ButtonProps, type ButtonSize, type ButtonVariant, type IconButtonProps } from \"./Button.js\";",
+      "export { Collapsible, type CollapsibleProps } from \"./Collapsible.js\";",
+      "export { ConfirmDialog, Dialog, type ConfirmDialogProps, type DialogProps } from \"./Dialog.js\";",
+      "export { Field, Select, TextArea, TextInput, type FieldProps, type SelectOption, type SelectProps, type TextAreaProps, type TextInputProps, } from \"./Field.js\";",
+      "export { HelpProvider, helpCoverage, helpIdForError, isInAppPath, safeHelpHref, useHelpRegistry, type HelpContextValue, type HelpCoverage, type HelpEntry, type HelpRegistry, } from \"./help.js\";",
+      "export { ErrorHelp, HelpTip, type ErrorHelpProps, type HelpTipProps } from \"./HelpTip.js\";",
+      "export { LOCALES, UiTextProvider, interpolate, lookup, resolveLocale, useCatalog, useLocale, type Catalog, type Locale, type MessageValues, type Messages, type TextFn, type Translate, type UiTextProviderProps, } from \"./i18n.js\";",
+      "export { ListDetail, type ListDetailProps, type ListItem } from \"./ListDetail.js\";",
+      "export { coreMessages, type CoreKey } from \"./messages.js\";",
+      "export { Spinner } from \"./Spinner.js\";",
+      "export { Tooltip, type TooltipProps } from \"./Tooltip.js\";",
+      "export { cx } from \"./util.js\";"
+    ],
+    "messages.d.ts": [
+      "import type { Catalog } from \"./i18n.js\";",
+      "import en from \"./locales/en.js\";",
+      "export type CoreKey = keyof typeof en;",
+      "export type CoreMessages = Readonly<Record<CoreKey, string>>;",
+      "export declare const coreMessages: Catalog<CoreKey>;"
+    ],
+    "util.d.ts": [
+      "import { type CoreKey } from \"./messages.js\";",
+      "import { type TextFn } from \"./i18n.js\";",
+      "export declare function cx(...names: Array<string | false | null | undefined>): string;",
+      "export declare function useCoreText(): TextFn<CoreKey>;",
+      "export declare function focusableIn(root: HTMLElement): HTMLElement[];",
+      "export declare function useEvent<A extends unknown[], R>(fn: (...args: A) => R): (...args: A) => R;"
+    ]
+  },
+  "messages": [
+    "core.busy",
+    "core.confirm.cancel",
+    "core.confirm.confirm",
+    "core.dialog.close",
+    "core.error.code",
+    "core.error.help",
+    "core.field.required",
+    "core.help.button",
+    "core.help.more",
+    "core.list.empty",
+    "core.list.noSelection"
+  ],
+  "classes": [
+    "ui-badge",
+    "ui-badge--danger",
+    "ui-badge--idle",
+    "ui-badge--info",
+    "ui-badge--neutral",
+    "ui-badge--running",
+    "ui-badge--success",
+    "ui-badge--warning",
+    "ui-badge__icon",
+    "ui-button",
+    "ui-button--danger",
+    "ui-button--ghost",
+    "ui-button--primary",
+    "ui-button--sm",
+    "ui-button__icon",
+    "ui-collapsible",
+    "ui-collapsible--open",
+    "ui-collapsible__chevron",
+    "ui-collapsible__heading",
+    "ui-collapsible__panel",
+    "ui-collapsible__summary",
+    "ui-collapsible__toggle",
+    "ui-dialog",
+    "ui-dialog--lg",
+    "ui-dialog--sm",
+    "ui-dialog__close",
+    "ui-dialog__description",
+    "ui-dialog__footer",
+    "ui-dialog__header",
+    "ui-dialog__panel",
+    "ui-dialog__title",
+    "ui-error-help",
+    "ui-error-help__code",
+    "ui-error-help__message",
+    "ui-error-help__meta",
+    "ui-field",
+    "ui-field__error",
+    "ui-field__hint",
+    "ui-field__label",
+    "ui-field__required",
+    "ui-helptip",
+    "ui-helptip__button",
+    "ui-helptip__more",
+    "ui-helptip__panel",
+    "ui-helptip__title",
+    "ui-icon-button",
+    "ui-input",
+    "ui-list-detail",
+    "ui-list-detail__description",
+    "ui-list-detail__detail",
+    "ui-list-detail__empty",
+    "ui-list-detail__hint",
+    "ui-list-detail__item",
+    "ui-list-detail__item--selected",
+    "ui-list-detail__list",
+    "ui-spinner",
+    "ui-spinner-wrap",
+    "ui-textarea",
+    "ui-tooltip",
+    "ui-tooltip--bottom",
+    "ui-tooltip--top",
+    "ui-tooltip__bubble",
+    "ui-visually-hidden"
+  ]
+}

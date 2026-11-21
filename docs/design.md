@@ -1,10 +1,12 @@
-# Token model
+# Design
+
+## Token model
 
 The `tokens` package (`@nodestro/ui-tokens`) is the base of the shared UI library (N-16). It follows the P0-6 analysis
 (annex P0-6/P0-8/P0-10, "Token-Migration"): a neutral prefix, the category structure of the axentra-studio tokens,
 semantic roles only, and products that supply nothing but a theme.
 
-## One source, two outputs
+### One source, two outputs
 
 `packages/tokens/src/tokens.json` is the only place a token is defined. Each entry has a `type`, a `description`
 and either one `value` (global) or `values` for every theme (themed). `lib/build.mjs` validates the source and
@@ -24,13 +26,13 @@ name that is not lower-case kebab-case, a color that is neither `#rrggbb` nor `r
 `;`, braces, angle brackets or comment markers (so a value can never end the rule), and contrast pairs that name
 unknown, global or translucent tokens or use a minimum other than 3 or 4.5.
 
-## Prefix
+### Prefix
 
 `--ui-`, as proposed in the P0-6 annex. It names the layer (UI library), not a product, so it stays correct for every
 product that adopts the package, and it cannot collide with the product prefixes `--nd-`, `--ax-` and `--tb-`, which
 lets a product run old and new tokens side by side during migration.
 
-## Categories
+### Categories
 
 | Category | Names | Themed |
 |---|---|---|
@@ -63,7 +65,7 @@ color role replaces at least one product variable (tested); there is no role tha
 There are no primitives (palette steps) in the output. Components use roles only, and the values behind the roles
 belong to the theme: the neutral default theme here, a product's brand theme elsewhere.
 
-## Themes and selectors
+### Themes and selectors
 
 ```css
 :root { /* globals */ }
@@ -80,7 +82,7 @@ belong to the theme: the neutral default theme here, a product's brand theme els
   script still follows the user.
 - The selectors are in `tokens.json` (`selectors`), so a brand theme can use exactly the same ones.
 
-## Brands
+### Brands
 
 The package is brand-neutral (decision E-0R-3 A and the P0-6 annex): no product name, logo color, font or motif. A
 brand is a stylesheet (or JSON that a product turns into one) loaded after `tokens.css` that sets role values for both
@@ -89,7 +91,7 @@ repository (`brands/<name>/`), never in a base package. A brand may set any toke
 fonts; that is how the products keep their look while sharing the roles. `contrast-pairs.json` is the contract a
 brand theme must meet.
 
-## Contrast
+### Contrast
 
 `src/contrast-pairs.json` lists 62 foreground/background pairs. Text pairs need 4.5:1 (WCAG 1.4.3); focus ring,
 control border, navigation indicator and accent need 3:1 (WCAG 1.4.11). The tests check every pair in both themes,
@@ -97,12 +99,12 @@ that every foreground role (text, link, on-*, status colors, nav text, focus, co
 one pair, and that every status color is checked on its own `-bg`. Translucent colors (`overlay`, `grid`,
 `nav-hover`, `nav-active`, `nav-border`) are not text backgrounds and are not checked.
 
-## Distribution
+### Distribution
 
 See `docs/consuming.md`: a reproducible tarball per package, vendored by the products, checked by SHA-256 and by
 npm's lockfile integrity. No registry.
 
-## Deviations from the P0-6 annex
+### Deviations from the P0-6 annex (tokens)
 
 | Annex | Here | Why |
 |---|---|---|
@@ -113,3 +115,37 @@ npm's lockfile integrity. No registry.
 | `npm pack` built twice and compared | Own packer (`scripts/lib/tarball.mjs`): npm layout, fixed metadata, gzip with stored blocks | `npm pack` output depends on the npm and zlib version (Node 22 ships npm 10, Node 24 npm 11), so the SHA-256 would differ between supported Node versions. The stored stream is identical everywhere; the size cost (tens of KB) does not matter. |
 | One lockstep version until 1.0 | Each package keeps its own `version`; `artifacts/manifest.json` lists each | The task asks for independently versioned packages; the annex allows it. With one package the difference does not show yet. |
 | `topbar` as an extra studio role | `chrome` | tabrion-studio already names the application frame `chrome`; one role, not two. |
+
+## Brand themes
+
+`@nodestro/ui-themes` holds the brands, outside the base packages: `src/brands/<name>.json` lists only the tokens a
+brand changes (both themes for a role, one value for a global scale), and the build turns each into
+`dist/<name>.css` with the selectors of `tokens.css` (a brand that changes a duration repeats the reduced-motion
+rule, which would otherwise lose to it). Three brands: `neutral` (no overrides), `nodestro` (the Midnight Citron
+values of nodestro-studio, tested against `migration/nodestro-studio.json`; roles the studio file lacks are derived
+from its palette) and `example` (a second, made-up brand that proves theming). Every brand meets every contrast pair
+in light and dark. A product with its own brand ships its theme the same way, in its own repository.
+
+## Components
+
+`@nodestro/ui-core` and `@nodestro/ui-ai` are React 19 packages written in TypeScript and compiled by
+`scripts/lib/react-package.mjs` (the pinned TypeScript compiler, in memory, byte-stable; the build is also the type
+check). Each file becomes `dist/<file>.js` plus `.d.ts`; `src/styles.css` ships as `dist/styles.css`.
+
+- **Accessible by construction:** native elements first (`<button>`, `<select>`, `<dialog>`), names and descriptions
+  wired by the components (Field), keyboard behaviour inside the component (focus trap and focus return in Dialog,
+  arrow keys in ListDetail, Escape for Tooltip and HelpTip), state as text (badges, busy, reasons next to disabled
+  buttons). Checked by the component tests and by axe-core in Chrome for every brand in light and dark.
+- **CSP-strict:** no inline styles and no runtime style injection; positions are pure CSS.
+- **Props and texts only:** components fetch nothing and decide nothing (the approval card calls back with the
+  comment and the remembered choice). Texts come from per-package catalogs in six languages through
+  `UiTextProvider`; a product can answer any key from its own i18n.
+
+| P0-6 annex | Here | Why |
+|---|---|---|
+| CSS Modules per component (axentra-studio) | One plain stylesheet per package, every class prefixed `ui-` | CSS Modules need the consumer's bundler to process files inside `node_modules`; a plain stylesheet works in any product (Vite, a static page) and the prefix avoids collisions as well. |
+| Radix primitives where CSP-neutral | No Radix: native `<dialog>` (the tabrion-studio pattern) and native `<select>` | Fewer dependencies, no style injection, platform keyboard and screen reader behaviour. |
+| lucide-react and i18next as peers | Neither: four inline SVG icons; an own catalog lookup with a `translate` hook | The products use different lucide majors (0.515 and 1.66); a product with i18next passes it as `translate`. |
+| Languages en, de, fr, es, it, pt-BR | The same six | The languages of nodestro-studio and axentra-studio (`LOCALES`). |
+| eslint with jsx-a11y | Not yet (docs/TODO.md) | axe-core in a real browser and the keyboard tests cover the components now. |
+| Pixel snapshots | Snapshots of the computed styles (colours, borders, radii, type) per element; screenshots as CI artifacts | Pixels depend on the fonts installed on the machine; computed styles are stable and still prove the brand reaches every element. |

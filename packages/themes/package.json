@@ -1,0 +1,32 @@
+{
+  "name": "@nodestro/ui-themes",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Brand themes for the shared UI tokens: per brand, the token values that differ from the neutral default.",
+  "license": "SEE LICENSE IN LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peterkarlhuber/nodestro-ui.git",
+    "directory": "packages/themes"
+  },
+  "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
+  "exports": {
+    "./neutral.css": "./dist/neutral.css",
+    "./nodestro.css": "./dist/nodestro.css",
+    "./example.css": "./dist/example.css",
+    "./themes.json": "./dist/themes.json",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/"
+  ],
+  "peerDependencies": {
+    "@nodestro/ui-tokens": "^0.1.0"
+  },
+  "engines": {
+    "node": ">=22.12"
+  }
+}

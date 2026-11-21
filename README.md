@@ -7,20 +7,30 @@ tarball that products vendor and check by SHA-256.
 | Package | Directory | Status |
 |---|---|---|
 | `@nodestro/ui-tokens` | `packages/tokens` | 0.1.0: design tokens (`--ui-*` CSS custom properties and JSON), light and dark |
-| `@nodestro/ui-core` | `packages/core` | planned (wave 3) |
-| `@nodestro/ui-ai` | `packages/ai` | planned (wave 3) |
+| `@nodestro/ui-themes` | `packages/themes` | 0.1.0: brand themes (token overrides): `neutral`, `nodestro`, `example` |
+| `@nodestro/ui-core` | `packages/core` | 0.1.0: buttons, fields, dialogs, list and detail, collapsible sections, tooltip, context help |
+| `@nodestro/ui-ai` | `packages/ai` | 0.1.0: approval card with remembered decisions, tool call row, chat message, source list |
 
-No runtime or development dependencies; Node.js 24 LTS is the target, 22.12 or later is supported.
+The component packages take React 19 as a peer dependency and have no other runtime dependency; tokens and themes
+have none at all. The development dependencies (TypeScript, Vitest, jsdom, axe-core, playwright-core) are pinned in
+`package-lock.json`. Node.js 24 LTS is the target, 22.12 or later is supported.
 
 ## Layout
 
 ```
 packages/tokens/       src/tokens.json (the one source), src/contrast-pairs.json, lib/build.mjs, test/
+packages/themes/       src/brands/<brand>.json (overrides), lib/build.mjs, test/
+packages/core/         src/*.tsx, src/locales/<lang>.ts, src/styles.css (compiled by scripts/lib/react-package.mjs)
+packages/ai/           the same layout; imports @nodestro/ui-core
 scripts/pack.mjs       reproducible tarballs, artifacts check
+scripts/api.mjs        records the public surface of each package in api/<package>.json
 scripts/mapping.mjs    renders docs/token-mapping.md from migration/*.json, verifies it against product checkouts
 migration/             each product's current variables and the token that replaces them
 artifacts/manifest.json  expected name, version, SHA-256 and npm integrity of every tarball
-test/                  repository-wide tests: package graph, reproducible build, vendored install, mapping
+api/                   the recorded public surface per package (exports, declarations, i18n keys, CSS classes, tokens)
+test/                  repository-wide tests: package graph, reproducible build, vendored install, mapping, API
+                       contract, brand neutrality; test/components/ (Vitest, jsdom), test/browser/ (Chrome: axe,
+                       visual snapshots per brand)
 docs/                  design.md (token model), consuming.md (distribution), token-mapping.md, TODO.md
 ```
 
@@ -28,7 +38,9 @@ docs/                  design.md (token model), consuming.md (distribution), tok
 
 ```sh
 npm ci --ignore-scripts
-npm test                 # all tests (node:test)
+npm test                 # node:test suites and the component tests (Vitest, jsdom)
+npm run test:browser     # axe-core and visual snapshots per brand in Chrome (CHROME_PATH or a standard location)
+npm run api              # record the public surface after a deliberate change (with its version bump)
 npm run build            # write packages/*/dist/ for inspection (not committed)
 npm run pack             # dist/<package>.tgz, .sha256, manifest.json
 npm run pack:check       # tarballs must match artifacts/manifest.json
@@ -41,7 +53,9 @@ node scripts/mapping.mjs --verify <dir>   # compare migration/*.json with produc
 ## Rules
 
 - Base packages carry no product brand. Brands are themes supplied by the products (see `docs/design.md`).
-- No package depends on a product (tested in `test/package-graph.test.mjs`).
+- No package depends on a product (tested in `test/package-graph.test.mjs`), and no component fetches data.
+- A change of a package's public surface needs a version bump, a breaking one a breaking bump
+  (`test/api-contract.test.mjs` against `origin/master`).
 - No publish, no releases, no tags. Products consume tarballs as described in `docs/consuming.md`.
 
 ## License

@@ -1,6 +1,6 @@
-# Weekly, grouped update pull requests, like the other repositories. The packages have no npm dependencies, so only
-# GitHub Actions (pinned by commit SHA, version in the comment) are watched. Add the npm ecosystem with the first
-# dependency. Merging stays manual.
+# Weekly, grouped update pull requests, like the other repositories: GitHub Actions (pinned by commit SHA, version in
+# the comment) and the npm development dependencies of the workspace (the packages themselves have none besides the
+# React peer). Merging stays manual.
 version: 2
 updates:
   - package-ecosystem: github-actions
@@ -12,4 +12,15 @@ updates:
     open-pull-requests-limit: 3
     groups:
       github-actions:
+        patterns: ['*']
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 3
+    groups:
+      npm-development:
+        dependency-type: development
         patterns: ['*']
