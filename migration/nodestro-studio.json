@@ -1,0 +1,332 @@
+{
+  "product": "nodestro-studio",
+  "source": {
+    "repository": "peterkarlhuber/nodestro-studio",
+    "commit": "f2905b0889e0594ce396c1a5a6804b23b219c701",
+    "file": "frontend/src/styles/midnight-citron.css",
+    "prefix": "--nd-",
+    "selectors": {
+      ":root,[data-theme=\"dark\"]": "dark",
+      "[data-theme=\"light\"]": "light",
+      ":root": "global"
+    }
+  },
+  "notes": [
+    "Dark is the default theme of the product; in this package light is the default. The product keeps its default by setting data-theme on <html>.",
+    "Colors, radii and durations map by role. The product keeps its values (citron brand, larger radii, 130/220ms) in its own brand theme.",
+    "Font sizes map to the nearest step of the shared scale (rem, 16px root). Two sizes change by 1-2px at migration unless the brand theme keeps them."
+  ],
+  "variables": [
+    {
+      "name": "--nd-bg",
+      "light": "#F6F7F2",
+      "dark": "#151819",
+      "token": "color-bg"
+    },
+    {
+      "name": "--nd-topbar",
+      "light": "#FFFFFF",
+      "dark": "#1B2120",
+      "token": "color-chrome",
+      "note": "Top bar = application frame."
+    },
+    {
+      "name": "--nd-canvas",
+      "light": "#EDF0E9",
+      "dark": "#1A2020",
+      "token": "color-canvas"
+    },
+    {
+      "name": "--nd-panel",
+      "light": "#FAFBF7",
+      "dark": "#202625",
+      "token": "color-surface-2",
+      "note": "Side panels: the secondary surface."
+    },
+    {
+      "name": "--nd-surface",
+      "light": "#FFFFFF",
+      "dark": "#252B2A",
+      "token": "color-surface"
+    },
+    {
+      "name": "--nd-surface-hover",
+      "light": "#F0F3EA",
+      "dark": "#2D3531",
+      "token": "color-surface-hover"
+    },
+    {
+      "name": "--nd-surface-raised",
+      "light": "#F7F9F3",
+      "dark": "#303936",
+      "token": "color-surface-raised"
+    },
+    {
+      "name": "--nd-border",
+      "light": "#D4DDD2",
+      "dark": "#3B4640",
+      "token": "color-border"
+    },
+    {
+      "name": "--nd-border-strong",
+      "light": "#AEBFAD",
+      "dark": "#516057",
+      "token": "color-border-strong"
+    },
+    {
+      "name": "--nd-text",
+      "light": "#1A251F",
+      "dark": "#F1F3ED",
+      "token": "color-text"
+    },
+    {
+      "name": "--nd-text-muted",
+      "light": "#56685E",
+      "dark": "#ADBAB1",
+      "token": "color-text-muted"
+    },
+    {
+      "name": "--nd-text-subtle",
+      "light": "#5F6E64",
+      "dark": "#94A39A",
+      "token": "color-text-subtle"
+    },
+    {
+      "name": "--nd-brand",
+      "light": "#546B25",
+      "dark": "#BED372",
+      "token": "color-primary"
+    },
+    {
+      "name": "--nd-brand-hover",
+      "light": "#41551B",
+      "dark": "#D2E78D",
+      "token": "color-primary-hover"
+    },
+    {
+      "name": "--nd-brand-active",
+      "light": "#314111",
+      "dark": "#A8BD5D",
+      "token": "color-primary-active"
+    },
+    {
+      "name": "--nd-brand-on",
+      "light": "#FFFFFF",
+      "dark": "#151819",
+      "token": "color-on-primary"
+    },
+    {
+      "name": "--nd-brand-soft",
+      "light": "#EBF1D6",
+      "dark": "#303923",
+      "token": "color-primary-subtle"
+    },
+    {
+      "name": "--nd-focus",
+      "light": "#546B25",
+      "dark": "#BED372",
+      "token": "color-focus"
+    },
+    {
+      "name": "--nd-success",
+      "light": "#126A50",
+      "dark": "#73D7AE",
+      "token": "color-success"
+    },
+    {
+      "name": "--nd-success-soft",
+      "light": "#E0F1E9",
+      "dark": "#203F36",
+      "token": "color-success-bg"
+    },
+    {
+      "name": "--nd-running",
+      "light": "#246B97",
+      "dark": "#8CBDDE",
+      "token": "color-running"
+    },
+    {
+      "name": "--nd-running-soft",
+      "light": "#E1EFF9",
+      "dark": "#263E4F",
+      "token": "color-running-bg"
+    },
+    {
+      "name": "--nd-warning",
+      "light": "#905614",
+      "dark": "#ECC179",
+      "token": "color-warning"
+    },
+    {
+      "name": "--nd-warning-soft",
+      "light": "#FFF0D5",
+      "dark": "#403521",
+      "token": "color-warning-bg"
+    },
+    {
+      "name": "--nd-danger",
+      "light": "#B43E3A",
+      "dark": "#F1958B",
+      "token": "color-danger"
+    },
+    {
+      "name": "--nd-danger-soft",
+      "light": "#FAE7E3",
+      "dark": "#442C2B",
+      "token": "color-danger-bg"
+    },
+    {
+      "name": "--nd-idle",
+      "light": "#5C6B61",
+      "dark": "#AFBBB4",
+      "token": "color-idle"
+    },
+    {
+      "name": "--nd-idle-soft",
+      "light": "#E9EFEB",
+      "dark": "#343E3B",
+      "token": "color-idle-bg"
+    },
+    {
+      "name": "--nd-grid",
+      "light": "rgba(79, 102, 83, .12)",
+      "dark": "rgba(177, 201, 180, .085)",
+      "token": "color-grid"
+    },
+    {
+      "name": "--nd-shadow",
+      "light": "0 10px 30px rgba(25,42,31,.075)",
+      "dark": "0 10px 32px rgba(0,0,0,.27)",
+      "token": "shadow-md",
+      "note": "Cards and canvas nodes."
+    },
+    {
+      "name": "--nd-shadow-popover",
+      "light": "0 20px 70px rgba(25,42,31,.16)",
+      "dark": "0 20px 70px rgba(0,0,0,.40)",
+      "token": "shadow-lg",
+      "note": "Popovers and dialogs."
+    },
+    {
+      "name": "--nd-font",
+      "value": "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "token": "font-sans"
+    },
+    {
+      "name": "--nd-mono",
+      "value": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+      "token": "font-mono"
+    },
+    {
+      "name": "--nd-font-size-2xs",
+      "value": "10px",
+      "token": "text-2xs"
+    },
+    {
+      "name": "--nd-font-size-xs",
+      "value": "11px",
+      "token": "text-xs",
+      "note": "11px -> 12px (nearest step)."
+    },
+    {
+      "name": "--nd-font-size-sm",
+      "value": "12px",
+      "token": "text-xs",
+      "note": "12px, same size."
+    },
+    {
+      "name": "--nd-font-size-base",
+      "value": "13px",
+      "token": "text-sm",
+      "note": "13px, same size."
+    },
+    {
+      "name": "--nd-font-size-md",
+      "value": "14px",
+      "token": "text-md"
+    },
+    {
+      "name": "--nd-font-size-lg",
+      "value": "16px",
+      "token": "text-lg"
+    },
+    {
+      "name": "--nd-font-size-xl",
+      "value": "18px",
+      "token": "text-xl",
+      "note": "18px -> 20px (nearest step)."
+    },
+    {
+      "name": "--nd-font-size-2xl",
+      "value": "20px",
+      "token": "text-xl",
+      "note": "20px, same size."
+    },
+    {
+      "name": "--nd-radius-sm",
+      "value": "7px",
+      "token": "radius-sm",
+      "note": "Brand value 7px."
+    },
+    {
+      "name": "--nd-radius-md",
+      "value": "11px",
+      "token": "radius-md",
+      "note": "Brand value 11px."
+    },
+    {
+      "name": "--nd-radius-lg",
+      "value": "15px",
+      "token": "radius-lg",
+      "note": "Brand value 15px."
+    },
+    {
+      "name": "--nd-radius-xl",
+      "value": "20px",
+      "token": "radius-xl",
+      "note": "Brand value 20px."
+    },
+    {
+      "name": "--nd-space-1",
+      "value": "4px",
+      "token": "space-1"
+    },
+    {
+      "name": "--nd-space-2",
+      "value": "8px",
+      "token": "space-2"
+    },
+    {
+      "name": "--nd-space-3",
+      "value": "12px",
+      "token": "space-3"
+    },
+    {
+      "name": "--nd-space-4",
+      "value": "16px",
+      "token": "space-4"
+    },
+    {
+      "name": "--nd-space-6",
+      "value": "24px",
+      "token": "space-6"
+    },
+    {
+      "name": "--nd-space-8",
+      "value": "32px",
+      "token": "space-8"
+    },
+    {
+      "name": "--nd-duration-fast",
+      "value": "130ms",
+      "token": "duration-fast",
+      "note": "Brand value 130ms."
+    },
+    {
+      "name": "--nd-duration-normal",
+      "value": "220ms",
+      "token": "duration-normal",
+      "note": "Brand value 220ms."
+    }
+  ]
+}

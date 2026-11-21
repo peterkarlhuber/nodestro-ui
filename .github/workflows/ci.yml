@@ -1,0 +1,55 @@
+name: CI
+
+# Checks of the UI packages on Node 22 and 24: unit and contract tests (themes, CSS/JSON sync, WCAG contrast, package
+# graph, token mapping, vendored install), the committed artifact manifest (same SHA-256 on both Node versions), and a
+# second build compared byte for byte. No publish, no release. Every action is pinned by commit SHA (version in the
+# comment), as in the other repositories.
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: check (node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - name: Tarballs match artifacts/manifest.json
+        run: npm run pack:check
+      - name: Token mapping document is current
+        run: npm run mapping:check
+      - name: Build the tarballs twice (reproducible)
+        run: |
+          npm run pack -- --out "$RUNNER_TEMP/a"
+          npm run pack -- --out "$RUNNER_TEMP/b"
+          for f in "$RUNNER_TEMP/a/"*.tgz; do cmp "$f" "$RUNNER_TEMP/b/$(basename "$f")"; done
+          cmp "$RUNNER_TEMP/a/manifest.json" artifacts/manifest.json
+          cat "$RUNNER_TEMP/a/"*.sha256
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: matrix.node == 24
+        with:
+          name: ui-packages
+          path: ${{ runner.temp }}/a/
+          retention-days: 14

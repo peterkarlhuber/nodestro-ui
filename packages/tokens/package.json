@@ -1,0 +1,29 @@
+{
+  "name": "@nodestro/ui-tokens",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Brand-neutral design tokens: CSS custom properties and JSON from one source, light and dark themes.",
+  "license": "SEE LICENSE IN LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peterkarlhuber/nodestro-ui.git",
+    "directory": "packages/tokens"
+  },
+  "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
+  "style": "./dist/tokens.css",
+  "exports": {
+    "./tokens.css": "./dist/tokens.css",
+    "./tokens.json": "./dist/tokens.json",
+    "./contrast-pairs.json": "./dist/contrast-pairs.json",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/"
+  ],
+  "engines": {
+    "node": ">=22.12"
+  }
+}
