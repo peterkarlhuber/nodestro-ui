@@ -1,0 +1,23 @@
+{
+  "name": "nodestro-ui-workspace",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Workspace of the brand-neutral UI packages. Not a package itself.",
+  "license": "SEE LICENSE IN LICENSE",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "pack": "node scripts/pack.mjs",
+    "pack:check": "node scripts/pack.mjs --check",
+    "pack:manifest": "node scripts/pack.mjs --write-manifest",
+    "mapping": "node scripts/mapping.mjs --write",
+    "mapping:check": "node scripts/mapping.mjs --check",
+    "test": "node --test \"packages/*/test/*.test.mjs\" \"test/*.test.mjs\""
+  }
+}

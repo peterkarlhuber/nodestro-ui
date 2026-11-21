@@ -1,0 +1,14 @@
+{
+  "format": 1,
+  "packages": [
+    {
+      "name": "@nodestro/ui-tokens",
+      "version": "0.1.0",
+      "directory": "packages/tokens",
+      "file": "nodestro-ui-tokens-0.1.0.tgz",
+      "size": 45591,
+      "sha256": "22ab7c10d45c37bc1154c4d760b78c6328b761800f34605d798ef0c0d601008f",
+      "integrity": "sha512-vmmWzLk2CdvVD/ncCq/zKwhtOhP6Z0K/fyqus/jGgtpsIY8x15hEM4/rePPShGQxCHAfk2+iBL6e2oo3xugLJg=="
+    }
+  ]
+}
