@@ -1,11 +1,13 @@
 // The packages of this repository and how each one becomes a tarball.
 //
 // Contract for a package under packages/<dir>/: package.json (private, no scripts, "files" lists what ships),
-// README.md, and lib/build.mjs exporting buildFiles(dir) -> Map(relative path -> Buffer) for the generated files.
+// README.md, and either lib/build.mjs exporting buildFiles(dir) -> Map(relative path -> Buffer) for the generated
+// files (data packages: tokens, themes) or src/index.ts (component packages: compiled by scripts/lib/react-package.mjs).
 // The tarball holds package.json, README.md, the repository LICENSE and the generated files, nothing else.
 import { readdirSync, readFileSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { buildReactPackage } from "./react-package.mjs";
 import { gzipStored, integrity, sha256, tar } from "./tarball.mjs";
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -32,17 +34,26 @@ export function tarballName(name, version) {
   return `${name.replace(/^@/, "").replace("/", "-")}-${version}.tgz`;
 }
 
+/** The generated files of one package (absolute directory): Map(relative path -> Buffer). */
+export async function buildPackage(abs) {
+  if (existsSync(join(abs, "lib", "build.mjs"))) {
+    const { buildFiles } = await import(pathToFileURL(join(abs, "lib", "build.mjs")).href);
+    return buildFiles(abs);
+  }
+  if (existsSync(join(abs, "src", "index.ts"))) return buildReactPackage(abs);
+  throw new Error(`${abs}: neither lib/build.mjs nor src/index.ts`);
+}
+
 /** The files of one package as they go into the tarball. */
 export async function packageFiles(dir) {
   const abs = join(ROOT, dir);
-  const { buildFiles } = await import(pathToFileURL(join(abs, "lib", "build.mjs")).href);
   const files = new Map([
     ["package.json", readFileSync(join(abs, "package.json"))],
     ["README.md", readFileSync(join(abs, "README.md"))],
     ["LICENSE", readFileSync(join(ROOT, "LICENSE"))],
   ]);
   const shipped = readJson(join(abs, "package.json")).files ?? [];
-  for (const [path, data] of buildFiles(abs)) {
+  for (const [path, data] of await buildPackage(abs)) {
     if (!shipped.some((f) => path === f || (f.endsWith("/") && path.startsWith(f)))) {
       throw new Error(`${dir}: ${path} is built but not listed in "files"`);
     }

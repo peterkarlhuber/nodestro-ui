@@ -21,7 +21,10 @@ expected values are committed in `artifacts/manifest.json`; CI fails if a build 
 A tarball holds `package/package.json` (no scripts, no dependencies for `tokens`), `package/README.md`,
 `package/LICENSE` and the generated files.
 
-## How a product pins and installs a package (later step, not wired yet)
+## How a product pins and installs a package
+
+nodestro-studio is the first consumer (`frontend/vendor/`, `platform/internal-ui.txt`, `scripts/vendor_ui.mjs`); the
+steps below are what it does.
 
 1. **Pin** in the product's `platform/internal-ui.txt` (proposed in the P0-8 annex), one line per package:
 
@@ -59,7 +62,13 @@ A tarball holds `package/package.json` (no scripts, no dependencies for `tokens`
 
    ```css
    @import '@nodestro/ui-tokens/tokens.css';
+   @import '@nodestro/ui-themes/<brand>.css';
+   @import '@nodestro/ui-core/styles.css';
+   @import '@nodestro/ui-ai/styles.css';
    ```
+
+   React and the other packages are peer dependencies: the product installs all four tarballs it uses and React
+   itself, so there is one copy of each.
 
    ```js
    import tokens from '@nodestro/ui-tokens/tokens.json' with { type: 'json' };
@@ -67,3 +76,11 @@ A tarball holds `package/package.json` (no scripts, no dependencies for `tokens`
 
 The studio frontends are built into their Python wheels at build time, so the npm dependency never reaches a Python
 consumer.
+
+## Versions and the contract
+
+Each package has its own version. `api/<package>.json` records its public surface (exports, type declarations, i18n
+keys, CSS classes, token and brand names); CI compares it with `origin/master` and fails when the surface changes
+without a version bump, or when something is removed or changed without a breaking bump (below 1.0 the next minor,
+which a caret range `^0.1.0` does not accept). The product's side of the contract is its own CI: it type-checks and
+tests what it uses against the vendored tarballs, and its peer ranges make npm refuse a mismatched set.

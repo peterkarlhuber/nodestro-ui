@@ -1,0 +1,91 @@
+// The sources an answer is based on, numbered by their id. Titles come from web pages: they are plain text, never
+// markup. A link opens only an http(s) address, in a new tab without a referrer.
+import { cx } from "@nodestro/ui-core";
+import { useId, type ReactNode } from "react";
+import { useAiText } from "./messages.js";
+
+export interface Source {
+  /** A short id the answer cites, for example "S1". */
+  id: string;
+  title: string;
+  url?: string;
+  /** Extra information (time, read or only found), as the product renders it. */
+  meta?: ReactNode;
+  /** A status badge. */
+  badge?: ReactNode;
+}
+
+/** An http(s) address (and with `allowPaths` an in-app path), or null for anything else. */
+export function safeHref(value: string | undefined, allowPaths = false): string | null {
+  if (!value) return null;
+  if (allowPaths && value.startsWith("/") && !value.startsWith("//")) return value;
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:" ? url.href : null;
+  } catch {
+    return null;
+  }
+}
+
+/** The host name without "www.", or "". */
+export function domainOf(value: string | undefined): string {
+  const href = safeHref(value);
+  return href ? new URL(href).hostname.replace(/^www\./, "") : "";
+}
+
+export interface SourceListProps {
+  sources: readonly Source[];
+  /** The heading; defaults to "Sources". */
+  title?: ReactNode;
+  /** A line under the heading. */
+  hint?: ReactNode;
+  /** The heading level (2 to 6). */
+  level?: 2 | 3 | 4 | 5 | 6;
+  className?: string;
+}
+
+export function SourceList({ sources, title, hint, level = 3, className }: SourceListProps) {
+  const t = useAiText();
+  const Heading = `h${level}` as const;
+  const headingId = useId();
+  return (
+    <section className={cx("ui-sources", className)} aria-labelledby={headingId}>
+      <Heading className="ui-sources__title" id={headingId}>{title ?? t("ai.sources.title")}</Heading>
+      {hint ? <p className="ui-sources__hint">{hint}</p> : null}
+      {sources.length ? (
+        <ol className="ui-sources__list">
+          {sources.map((source) => {
+            const href = safeHref(source.url);
+            const domain = domainOf(source.url);
+            const label = source.title.trim() || source.url || source.id;
+            return (
+              <li key={source.id} className="ui-sources__item">
+                <code className="ui-sources__id">{source.id}</code>
+                <span className="ui-sources__text">
+                  {href ? (
+                    <a href={href} target="_blank" rel="noopener noreferrer">
+                      {label}
+                      <span className="ui-visually-hidden"> {t("ai.sources.newTab")}</span>
+                    </a>
+                  ) : (
+                    <span>{label}</span>
+                  )}
+                  {domain || source.meta ? (
+                    <span className="ui-sources__meta">
+                      {domain}
+                      {domain && source.meta ? " · " : null}
+                      {source.meta}
+                    </span>
+                  ) : null}
+                </span>
+                {source.badge ? <span className="ui-sources__badge">{source.badge}</span> : null}
+              </li>
+            );
+          })}
+        </ol>
+      ) : (
+        <p className="ui-sources__hint">{t("ai.sources.empty")}</p>
+      )}
+    </section>
+  );
+}

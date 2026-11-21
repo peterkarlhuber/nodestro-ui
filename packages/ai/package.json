@@ -1,0 +1,36 @@
+{
+  "name": "@nodestro/ui-ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Brand-neutral React components for AI products: approval card with remembered decisions, tool call row, chat message, source list. Props and i18n keys only, no data fetching.",
+  "license": "SEE LICENSE IN LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peterkarlhuber/nodestro-ui.git",
+    "directory": "packages/ai"
+  },
+  "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/"
+  ],
+  "peerDependencies": {
+    "@nodestro/ui-core": "^0.1.0",
+    "@nodestro/ui-tokens": "^0.1.0",
+    "react": "^19.0.0"
+  },
+  "engines": {
+    "node": ">=22.12"
+  }
+}

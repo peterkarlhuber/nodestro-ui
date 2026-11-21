@@ -1,4 +1,6 @@
-// The package graph: no package depends on a product (nodestro-studio or any other), and tokens depends on nothing.
+// The package graph: no package depends on a product (nodestro-studio or any other), tokens depends on nothing, the
+// component packages depend on React (peer) and on each other only in one direction (ai -> core), and no component
+// fetches data.
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { builtinModules } from "node:module";
@@ -10,7 +12,14 @@ import { ROOT, readJson, workspaceDirs } from "../scripts/lib/workspaces.mjs";
 const PRODUCTS = /(^|[/@:])(nodestro-(studio|api|app-ui|desktop|cloud|server|runtime|examples|integrations|local-docker)|axentra(-studio)?|tabrion(-studio)?|locria[\w-]*|levuvo-mail|orkexa)($|[/#.@])/i;
 const DEP_FIELDS = ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies", "bundleDependencies", "bundledDependencies"];
 // External (non-workspace) dependencies each package may declare. Adding one is a reviewed change to this list.
-const ALLOWED_EXTERNAL = { "packages/tokens": [] };
+const ALLOWED_EXTERNAL = { "packages/tokens": [], "packages/themes": [], "packages/core": ["react"], "packages/ai": ["react"] };
+// The workspace packages each package may depend on (the direction of the graph: no cycles, nothing on ai).
+const ALLOWED_WORKSPACE = {
+  "packages/tokens": [],
+  "packages/themes": ["@nodestro/ui-tokens"],
+  "packages/core": ["@nodestro/ui-tokens"],
+  "packages/ai": ["@nodestro/ui-core", "@nodestro/ui-tokens"],
+};
 
 const root = readJson(join(ROOT, "package.json"));
 const lock = readJson(join(ROOT, "package-lock.json"));
@@ -43,6 +52,7 @@ describe("package graph", () => {
       assert.match(pkg.name, /^@nodestro\/ui-[a-z]+$/, `${dir}: unexpected name ${pkg.name}`);
       assert.equal(pkg.private, true, `${dir}: must be private (no registry publish)`);
       assert.ok(dir in ALLOWED_EXTERNAL, `${dir}: add it to ALLOWED_EXTERNAL`);
+      assert.ok(dir in ALLOWED_WORKSPACE, `${dir}: add it to ALLOWED_WORKSPACE`);
     }
   });
 
@@ -58,7 +68,7 @@ describe("package graph", () => {
   it("packages depend only on other workspace packages and their allowlist, never by path or git", () => {
     for (const { dir, pkg } of workspaces) {
       for (const d of deps(pkg)) {
-        assert.ok(workspaceNames.has(d.name) || ALLOWED_EXTERNAL[dir].includes(d.name), `${dir}: ${d.field} ${d.name} not allowed`);
+        assert.ok(ALLOWED_WORKSPACE[dir].includes(d.name) || ALLOWED_EXTERNAL[dir].includes(d.name), `${dir}: ${d.field} ${d.name} not allowed`);
         assert.doesNotMatch(d.spec, /^(file:|link:|git|github:|https?:)/, `${dir}: ${d.name} uses ${d.spec}`);
       }
     }
@@ -68,6 +78,38 @@ describe("package graph", () => {
     const tokens = workspaces.find((w) => w.dir === "packages/tokens").pkg;
     assert.deepEqual(deps(tokens), []);
     assert.equal(tokens.scripts, undefined, "shipped package.json must not have (install) scripts");
+  });
+
+  it("component packages take React and other workspace packages as peers only (one copy in the product)", () => {
+    for (const { dir, pkg } of workspaces) {
+      for (const d of deps(pkg).filter((d) => d.name === "react" || workspaceNames.has(d.name))) {
+        assert.equal(d.field, "peerDependencies", `${dir}: ${d.name} must be a peer dependency`);
+        assert.match(d.spec, /^\^\d+\.\d+\.\d+$/, `${dir}: ${d.name} needs a caret range, got ${d.spec}`);
+      }
+    }
+  });
+
+  it("the workspace peer ranges accept the current version of each package", () => {
+    const versions = Object.fromEntries(workspaces.map((w) => [w.pkg.name, w.pkg.version]));
+    for (const { dir, pkg } of workspaces) {
+      for (const [name, spec] of Object.entries(pkg.peerDependencies ?? {})) {
+        if (!(name in versions)) continue;
+        const [major, minor] = spec.slice(1).split(".").map(Number);
+        const [vMajor, vMinor] = versions[name].split(".").map(Number);
+        // Caret semantics: below 1.0 the minor version is the compatibility line.
+        assert.ok(vMajor === major && (major > 0 || vMinor === minor), `${dir}: ${name}@${spec} does not accept ${versions[name]}`);
+      }
+    }
+  });
+
+  it("no component fetches data or talks to a server", () => {
+    for (const { dir } of workspaces) {
+      for (const file of files(resolve(ROOT, dir)).filter((f) => /\.tsx?$/.test(f))) {
+        const text = readFileSync(file, "utf-8");
+        assert.doesNotMatch(text, /\b(fetch|XMLHttpRequest|WebSocket|EventSource|sendBeacon)\s*\(/, `${relative(ROOT, file)} fetches`);
+        assert.doesNotMatch(text, /\bnew\s+(XMLHttpRequest|WebSocket|EventSource)\b/, `${relative(ROOT, file)} opens a connection`);
+      }
+    }
   });
 
   it("no shipped package.json has scripts", () => {

@@ -2,6 +2,33 @@
   "format": 1,
   "packages": [
     {
+      "name": "@nodestro/ui-ai",
+      "version": "0.1.0",
+      "directory": "packages/ai",
+      "file": "nodestro-ui-ai-0.1.0.tgz",
+      "size": 91164,
+      "sha256": "cf4c87d96ce464a12a237bd7f501d74f6d1f011d2f627a7cb8c0befd723b68e2",
+      "integrity": "sha512-j3qeb1++9mXT6YqsEZYYWnoyvNtjyc4vMS5IprQW+jVgSO9Ew+J9f2QNdy/jeRW2vJmYm6zLSjKAmCqaf1v6OA=="
+    },
+    {
+      "name": "@nodestro/ui-core",
+      "version": "0.1.0",
+      "directory": "packages/core",
+      "file": "nodestro-ui-core-0.1.0.tgz",
+      "size": 95772,
+      "sha256": "0a3a5f993803127572a9f7fba015da499259c03f5d2df1e4c2c2591d7c4f56ab",
+      "integrity": "sha512-rdLeGSO0Of4PSr8r6IFNxApfQIUiqz0gwCXN/+hBjwkW3OcO0fuq0XqKAKpFsLQI0ozeDBTzSDItjCg0dOIutQ=="
+    },
+    {
+      "name": "@nodestro/ui-themes",
+      "version": "0.1.0",
+      "directory": "packages/themes",
+      "file": "nodestro-ui-themes-0.1.0.tgz",
+      "size": 25623,
+      "sha256": "c20f8e3acf68eaec2b13809925952cf01a546e0d1f607f00226a4cf493f2df27",
+      "integrity": "sha512-8HKSu1gKPLpZAdtBuCQjboezx4OnClZRm8UYKU6InruSfsOuKwk1fVy5Jis5dzXLhpsmJYSHeonoVacoEqfsHQ=="
+    },
+    {
       "name": "@nodestro/ui-tokens",
       "version": "0.1.0",
       "directory": "packages/tokens",

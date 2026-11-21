@@ -1,0 +1,5 @@
+{
+  "name": "neutral",
+  "description": "The neutral default of @nodestro/ui-tokens, unchanged. Use it when a product has no brand of its own.",
+  "tokens": {}
+}
