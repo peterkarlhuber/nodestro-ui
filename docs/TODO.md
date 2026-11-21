@@ -33,7 +33,7 @@ package) is done; `core`, `ai` and product adoption are wave 3.
 - [ ] Alias layer per product (`--nd-bg: var(--ui-color-bg)`, generated from `migration/*.json`), then a codemod per
   repository, then remove the alias layer.
 - [ ] Contract test in each product's CI so that a version bump cannot break it unnoticed.
-- [ ] Locria and Studio render the same approval card from the package with their own brand (snapshot per brand).
+- [ ] Another product and Studio render the same approval card from the package with their own brand (snapshot per brand).
 
 ## Repository
 
