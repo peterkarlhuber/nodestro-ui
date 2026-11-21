@@ -41,10 +41,22 @@ export function helpIdForError(registry: HelpRegistry, code: string): string | n
   return id && registry.entries[id] ? id : null;
 }
 
-/** Only http(s) links and in-app paths are followed; anything else (javascript:, data:) is dropped. */
+// Backslashes and control characters (tab, newline, NUL, DEL ...): browsers treat a backslash like "/" and drop tabs
+// and newlines, so "/<backslash>evil.example" or "/<tab>/evil.example" would leave the site like "//evil.example".
+const UNSAFE_CHARS = /[\\\u0000-\u001f\u007f]/;
+
+/**
+ * An in-app path: starts with one "/" (never "//", which is another host), no backslash and no control character
+ * anywhere. Anything else could leave the site (an open redirect).
+ */
+export function isInAppPath(value: string): boolean {
+  return value.startsWith("/") && !value.startsWith("//") && !UNSAFE_CHARS.test(value);
+}
+
+/** Only http(s) links, in-app paths and anchors are followed; anything else (javascript:, data:, //host) is dropped. */
 export function safeHelpHref(href: string | undefined): string | undefined {
-  if (!href) return undefined;
-  if (href.startsWith("/") && !href.startsWith("//")) return href;
+  if (!href || UNSAFE_CHARS.test(href)) return undefined;
+  if (href.startsWith("/")) return isInAppPath(href) ? href : undefined;
   if (href.startsWith("#")) return href;
   try {
     const url = new URL(href);

@@ -19,6 +19,7 @@ export {
   HelpProvider,
   helpCoverage,
   helpIdForError,
+  isInAppPath,
   safeHelpHref,
   useHelpRegistry,
   type HelpContextValue,

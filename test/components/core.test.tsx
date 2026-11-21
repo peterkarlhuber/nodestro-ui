@@ -23,6 +23,7 @@ import {
   UiTextProvider,
   helpCoverage,
   helpIdForError,
+  isInAppPath,
   safeHelpHref,
 } from "@nodestro/ui-core";
 
@@ -405,5 +406,21 @@ describe("text lookup", () => {
       ),
     );
     expect(screen.getByText("Nada para mostrar.")).toBeTruthy();
+  });
+});
+
+describe("links that could leave the site (open redirect)", () => {
+  const OUTSIDE = ["//evil.example", "/\\evil.example", "/\\\\evil.example", "\\\\evil.example", "/\t/evil.example", "/\n/evil.example", "/x\u0000y", "/x\u007fy", "https://evil.example/\\x", "#a\nb"];
+  it("are refused by safeHelpHref and isInAppPath", () => {
+    for (const href of OUTSIDE) expect(safeHelpHref(href), JSON.stringify(href)).toBeUndefined();
+    for (const href of OUTSIDE) expect(isInAppPath(href), JSON.stringify(href)).toBe(false);
+    expect(safeHelpHref("/docs/a?b=c#d")).toBe("/docs/a?b=c#d");
+    expect(isInAppPath("/docs/a")).toBe(true);
+  });
+
+  it("never become a link in a HelpTip", async () => {
+    render(<HelpTip entry={{ title: "T", summary: "S", href: "/\\evil.example" }} />);
+    await userEvent.click(screen.getByRole("button", { name: "Help: T" }));
+    expect(screen.queryByRole("link")).toBeNull();
   });
 });

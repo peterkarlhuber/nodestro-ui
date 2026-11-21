@@ -1,6 +1,6 @@
 {
   "name": "@nodestro/ui-ai",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Brand-neutral React components for AI products: approval card with remembered decisions, tool call row, chat message, source list. Props and i18n keys only, no data fetching.",
   "license": "SEE LICENSE IN LICENSE",
@@ -26,7 +26,7 @@
     "dist/"
   ],
   "peerDependencies": {
-    "@nodestro/ui-core": "^0.1.0",
+    "@nodestro/ui-core": "^0.1.1",
     "@nodestro/ui-tokens": "^0.1.0",
     "react": "^19.0.0"
   },

@@ -272,3 +272,25 @@ describe("SourceList", () => {
     expect(screen.getByText("No sources.")).toBeTruthy();
   });
 });
+
+describe("links that could leave the site (open redirect)", () => {
+  const OUTSIDE = ["//evil.example", "/\\evil.example", "\\\\evil.example", "/\t/evil.example", "/\r\n/evil.example", "/x\u0000y", "https://evil.example/\\x"];
+  it("are refused by safeHref, also where in-app paths are allowed", () => {
+    for (const href of OUTSIDE) {
+      expect(safeHref(href, true), JSON.stringify(href)).toBeNull();
+      expect(safeHref(href), JSON.stringify(href)).toBeNull();
+    }
+    expect(safeHref("/files/1", true)).toBe("/files/1");
+    expect(safeHref("/files/1")).toBeNull();
+  });
+
+  it("never become a link in a chat attachment or a source", () => {
+    render(
+      <>
+        <ChatMessage role="user" attachments={[{ name: "a", href: "/\\evil.example" }]}>x</ChatMessage>
+        <SourceList sources={[{ id: "S1", title: "b", url: "/\\evil.example" }]} />
+      </>,
+    );
+    expect(screen.queryByRole("link")).toBeNull();
+  });
+});
