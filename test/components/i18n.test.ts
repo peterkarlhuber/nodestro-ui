@@ -8,11 +8,15 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { LOCALES, coreMessages, interpolate, lookup, resolveLocale, type Catalog } from "@nodestro/ui-core";
 import { REMEMBER_DURATIONS, TOOL_CALL_TONE, aiMessages } from "@nodestro/ui-ai";
+import { HELP_ERRORS, helpMessages } from "@nodestro/ui-help";
 
 const ROOT = fileURLToPath(new URL("../..", import.meta.url));
-const CATALOGS: Array<[string, Catalog, string]> = [
+// The source of a component package uses its keys with t(); the help package's keys are entries
+// (help.<topic>.title|summary|keywords), used through its error map (checked in "keys built from values").
+const CATALOGS: Array<[string, Catalog, string | null]> = [
   ["core", coreMessages, "packages/core/src"],
   ["ai", aiMessages, "packages/ai/src"],
+  ["help", helpMessages, null],
 ];
 
 function sources(dir: string): string[] {
@@ -76,6 +80,7 @@ for (const [name, catalog, dir] of CATALOGS) {
       }
     });
 
+    if (!dir) return;
     const code = sources(join(ROOT, dir)).join("\n");
     const used = new Set([...code.matchAll(/\bt\(\s*"([^"]+)"/g)].map((m) => m[1]));
     const prefixes = [...code.matchAll(/\bt\(\s*`([^`$]+)\$\{/g)].map((m) => m[1]);
@@ -100,5 +105,12 @@ describe("keys built from values", () => {
     for (const kind of ["step", "tool", "budget"]) expect(ai).toHaveProperty([`ai.approval.kind.${kind}`]);
     for (const role of ["user", "assistant", "system", "tool"]) expect(ai).toHaveProperty([`ai.chat.role.${role}`]);
     for (const reason of ["destructive", "mcp"]) expect(ai).toHaveProperty([`ai.remember.rejectOnly.${reason}`]);
+  });
+
+  it("help: every key belongs to an entry the error map uses, every entry has all three parts", () => {
+    const help = helpMessages.en as Record<string, string>;
+    const ids = new Set(Object.values(HELP_ERRORS));
+    for (const key of Object.keys(help)) expect(ids.has(key.replace(/\.(title|summary|keywords)$/, "")), key).toBe(true);
+    for (const id of ids) for (const part of ["title", "summary", "keywords"]) expect(help).toHaveProperty([`${id}.${part}`]);
   });
 });

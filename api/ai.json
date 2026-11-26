@@ -1,6 +1,6 @@
 {
   "name": "@nodestro/ui-ai",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -10,7 +10,7 @@
     "./package.json": "./package.json"
   },
   "peerDependencies": {
-    "@nodestro/ui-core": "^0.1.1",
+    "@nodestro/ui-core": "^0.2.0",
     "@nodestro/ui-tokens": "^0.1.0",
     "react": "^19.0.0"
   },

@@ -1,0 +1,80 @@
+{
+  "name": "@nodestro/ui-help",
+  "version": "0.1.0",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "peerDependencies": {
+    "@nodestro/ui-core": "^0.2.0"
+  },
+  "declarations": {
+    "errors.d.ts": [
+      "export declare const HELP_ERRORS: Readonly<Record<string, string>>;"
+    ],
+    "index.d.ts": [
+      "import { type HelpCatalogOptions, type HelpRegistry } from \"@nodestro/ui-core\";",
+      "export { HELP_ERRORS } from \"./errors.js\";",
+      "export { helpMessages, type HelpKey, type HelpMessages } from \"./messages.js\";",
+      "export declare function platformHelp(locale: string, options?: HelpCatalogOptions): Required<HelpRegistry>;"
+    ],
+    "messages.d.ts": [
+      "import type { Catalog } from \"@nodestro/ui-core\";",
+      "import en from \"./locales/en.js\";",
+      "export type HelpKey = keyof typeof en;",
+      "export type HelpMessages = Readonly<Record<HelpKey, string>>;",
+      "export declare const helpMessages: Catalog<HelpKey>;"
+    ]
+  },
+  "messages": [
+    "help.access.keywords",
+    "help.access.summary",
+    "help.access.title",
+    "help.agents.keywords",
+    "help.agents.summary",
+    "help.agents.title",
+    "help.approvals.keywords",
+    "help.approvals.summary",
+    "help.approvals.title",
+    "help.backup.keywords",
+    "help.backup.summary",
+    "help.backup.title",
+    "help.budget.keywords",
+    "help.budget.summary",
+    "help.budget.title",
+    "help.connections.keywords",
+    "help.connections.summary",
+    "help.connections.title",
+    "help.files.keywords",
+    "help.files.summary",
+    "help.files.title",
+    "help.libraries.keywords",
+    "help.libraries.summary",
+    "help.libraries.title",
+    "help.localModels.keywords",
+    "help.localModels.summary",
+    "help.localModels.title",
+    "help.models.keywords",
+    "help.models.summary",
+    "help.models.title",
+    "help.publishing.keywords",
+    "help.publishing.summary",
+    "help.publishing.title",
+    "help.requests.keywords",
+    "help.requests.summary",
+    "help.requests.title",
+    "help.runs.keywords",
+    "help.runs.summary",
+    "help.runs.title",
+    "help.tools.keywords",
+    "help.tools.summary",
+    "help.tools.title",
+    "help.workflows.keywords",
+    "help.workflows.summary",
+    "help.workflows.title"
+  ],
+  "classes": []
+}

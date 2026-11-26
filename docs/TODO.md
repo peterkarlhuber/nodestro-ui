@@ -1,7 +1,8 @@
 # TODO
 
 Open work for N-16 (shared UI library), in order. Done: the skeleton and `tokens` (wave 2); `themes`, `core`, `ai`,
-the browser checks and the first product step in nodestro-studio (wave 3, N-16 step 2).
+the browser checks and the first product step in nodestro-studio (wave 3, N-16 step 2); N-17 help infrastructure
+(wave 4).
 
 ## tokens and themes
 
@@ -18,7 +19,16 @@ the browser checks and the first product step in nodestro-studio (wave 3, N-16 s
   theme switch.
 - [ ] More of `ai`: composer with attachments, safe Markdown with code blocks, reasoning view, model picker with
   license notice (seed: nodestro-studio `src/assistant/`).
-- [ ] Offline full-text search for help (N-17, small building block next to `HelpProvider`).
+- [x] N-17 help infrastructure: offline full-text search (`HelpSearch`, `createHelpIndex`), error code families
+  (`"run.*"`) in the error map and in `helpCoverage`, help from a six-language catalog (`helpEntriesFromCatalog`),
+  core 0.2.0 (ai 0.2.0 for the peer range); `@nodestro/ui-help` 0.1.0 with the help for every error code family of
+  the platform API in six languages; coverage test against the pinned code list `errors/api-error-codes.json`.
+- [ ] Re-pin `errors/api-error-codes.json` whenever the API's code list changes
+  (`node scripts/error-codes.mjs --verify <dir> --ref origin/master`, then `--write`), and add help or an exception
+  for each new family. It is a manual step like `mapping.mjs --verify`; a check in the API's CI that reads this
+  repository's pinned list would make it automatic (not done: it adds a cross-repository fetch to that CI).
+- [ ] Finer help for frequent single codes (exact keys win over families) once products report which errors people
+  look up; product-specific help stays in the products.
 - [ ] Lint (eslint with jsx-a11y, `--max-warnings=0`) and Prettier.
 - [ ] Correct the "MIT" origin comments in tabrion-studio before any of its code moves here (P0-10).
 - [ ] `admin` package (layout of settings pages, state displays), after the first products use core.
@@ -32,6 +42,9 @@ the browser checks and the first product step in nodestro-studio (wave 3, N-16 s
 - [ ] Alias layer per product (`--nd-bg: var(--ui-color-bg)`, generated from `migration/*.json`), then a codemod per
   repository, then remove the alias layer.
 - [ ] A second product renders the same approval card with its own brand.
+- [ ] nodestro-studio: bump the pins to core 0.2.0, ai 0.2.0 and help 0.1.0; show `ErrorHelp` with `platformHelp` for
+  API errors and `HelpSearch` in its help panel (its own `components/Tooltip.tsx` HelpTip and `lib/help.ts` entries
+  can move onto the catalog shape step by step).
 
 ## Repository
 

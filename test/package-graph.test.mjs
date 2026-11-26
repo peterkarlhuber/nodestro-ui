@@ -1,6 +1,6 @@
 // The package graph: no package depends on a product (nodestro-studio or any other), tokens depends on nothing, the
-// component packages depend on React (peer) and on each other only in one direction (ai -> core), and no component
-// fetches data.
+// component packages depend on React (peer) and on each other only in one direction (ai -> core, help -> core), and
+// no component fetches data.
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { builtinModules } from "node:module";
@@ -12,13 +12,14 @@ import { ROOT, readJson, workspaceDirs } from "../scripts/lib/workspaces.mjs";
 const PRODUCTS = /(^|[/@:])(nodestro-(studio|api|app-ui|desktop|cloud|server|runtime|examples|integrations|local-docker)|axentra(-studio)?|tabrion(-studio)?|locria[\w-]*|levuvo-mail|orkexa)($|[/#.@])/i;
 const DEP_FIELDS = ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies", "bundleDependencies", "bundledDependencies"];
 // External (non-workspace) dependencies each package may declare. Adding one is a reviewed change to this list.
-const ALLOWED_EXTERNAL = { "packages/tokens": [], "packages/themes": [], "packages/core": ["react"], "packages/ai": ["react"] };
+const ALLOWED_EXTERNAL = { "packages/tokens": [], "packages/themes": [], "packages/core": ["react"], "packages/ai": ["react"], "packages/help": [] };
 // The workspace packages each package may depend on (the direction of the graph: no cycles, nothing on ai).
 const ALLOWED_WORKSPACE = {
   "packages/tokens": [],
   "packages/themes": ["@nodestro/ui-tokens"],
   "packages/core": ["@nodestro/ui-tokens"],
   "packages/ai": ["@nodestro/ui-core", "@nodestro/ui-tokens"],
+  "packages/help": ["@nodestro/ui-core"],
 };
 
 const root = readJson(join(ROOT, "package.json"));

@@ -1,0 +1,8 @@
+{
+  "comment": "API error codes (exact or a family ending in .*) that deliberately have no entry in @nodestro/ui-help, each with its reason. Checked by test/components/help-coverage.test.ts: an exception that matches no code, or whose codes all have help, fails the test.",
+  "exceptions": {
+    "axentra.*": "Codes of an optional integration with a separate product; that product brings its own help for them.",
+    "connect.*": "Notes of the automatic connection repair in the workflow editor, shown as information next to the change, not as errors.",
+    "validate.*": "Results of the workflow check (ok, fixed, renamed and similar), shown as information; the problems it finds carry their own codes."
+  }
+}

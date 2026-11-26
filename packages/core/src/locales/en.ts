@@ -11,4 +11,7 @@ export default {
   "core.help.more": "Learn more",
   "core.error.code": "Error code {{code}}",
   "core.error.help": "How to fix this",
+  "core.help.search.label": "Search help",
+  "core.help.search.results": "Results: {{count}}",
+  "core.help.search.none": "No help found. Try other or fewer words.",
 } as const;

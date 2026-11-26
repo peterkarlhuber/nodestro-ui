@@ -13,6 +13,7 @@ strict Content-Security-Policy (`style-src 'self'`): no inline styles, no inject
 | `Collapsible` | heading plus disclosure button (`aria-expanded`, `aria-controls`), hidden region while collapsed |
 | `Tooltip` | shown on hover and focus, Escape hides it, always linked with `aria-describedby` (WCAG 1.4.13) |
 | `HelpTip`, `HelpProvider`, `ErrorHelp`, `helpCoverage` | context help by id, error code to help, and a coverage check for the product's tests |
+| `HelpSearch`, `createHelpIndex` | offline full-text search over the registered help: labelled search landmark, result count in a polite status, arrow keys between field and results, Escape empties the field |
 | `Badge`, `Spinner` | text first, the tone only adds colour |
 
 ## Use
@@ -51,5 +52,25 @@ The package ships no help content. The product registers its entries and the err
 </HelpProvider>
 ```
 
-`helpCoverage(codes, registry, exceptions)` returns the codes without help or exception, references to missing
-entries and stale exceptions; a product test asserts that all three are empty.
+An error map key is an exact code or a family ending in `.*` (`'approval.*'`: every code that starts with
+`approval.`); the exact code wins, then the longest family. `helpCoverage(codes, registry, exceptions)` returns the
+codes without help or exception, references to missing entries, stale exceptions (exceptions may be families too)
+and error map keys that match no code; a product test asserts that all four are empty.
+
+Help texts in six languages come as a catalog (`help.<id>.title`, `.summary`, optional `.keywords`, the same shape
+as the package texts): `helpEntriesFromCatalog(catalog, locale, { hrefs, translate })` gives the entries of one
+language with English as the fallback. `@nodestro/ui-help` is such a catalog for the platform API's error codes.
+
+### Offline search
+
+```tsx
+<HelpProvider entries={entries} errors={errors} onOpen={openHelpPanel}>
+  <HelpSearch />
+</HelpProvider>
+```
+
+`HelpSearch` indexes the registered entries in memory (`createHelpIndex(entries, errors)`); nothing is fetched.
+Every query word must start a word of the title, the keywords, the id or the summary (title counts most); case and
+accents do not matter (`ubersetzung` finds `Übersetzung`, `strasse` finds `Straße`). A pasted error code finds the
+entry the error map gives for it first. A result opens through `onOpen`, else follows its (safe) link, else shows
+its summary as text. It has no animation, so there is nothing to reduce for `prefers-reduced-motion`.

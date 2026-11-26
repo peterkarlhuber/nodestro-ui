@@ -1,0 +1,31 @@
+{
+  "name": "@nodestro/ui-help",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Brand-neutral help content for the stable error codes of the platform API, in six languages, for the context help of @nodestro/ui-core.",
+  "license": "SEE LICENSE IN LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peterkarlhuber/nodestro-ui.git",
+    "directory": "packages/help"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/"
+  ],
+  "peerDependencies": {
+    "@nodestro/ui-core": "^0.2.0"
+  },
+  "engines": {
+    "node": ">=22.12"
+  }
+}

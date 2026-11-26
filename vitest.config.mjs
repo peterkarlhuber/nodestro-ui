@@ -8,6 +8,7 @@ const at = (path) => fileURLToPath(new URL(path, import.meta.url));
 export const alias = {
   "@nodestro/ui-core": at("./packages/core/src/index.ts"),
   "@nodestro/ui-ai": at("./packages/ai/src/index.ts"),
+  "@nodestro/ui-help": at("./packages/help/src/index.ts"),
 };
 
 export default defineConfig({
