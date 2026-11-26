@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "comment": "Mandatory checks per CI-FAST. A PR is ok only if every listed check ran on the PR head SHA and succeeded; ci-ok.yml reports that verdict as the check run ci-ok. Changing this list needs a reason in the PR.",
+  "pull_request": {
+    "ci.yml": [
+      "browser (axe, snapshots per brand)",
+      "check (node 22)",
+      "check (node 24)"
+    ]
+  }
+}
