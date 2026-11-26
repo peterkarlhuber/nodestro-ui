@@ -1,6 +1,6 @@
 {
   "name": "@nodestro/ui-core",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -52,6 +52,10 @@
       "export interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, \"onChange\" | \"value\" | \"children\"> { options: readonly SelectOption[]; value: string; onChange: (value: string) => void; }",
       "export declare const Select: import(\"react\").ForwardRefExoticComponent<SelectProps & import(\"react\").RefAttributes<HTMLSelectElement>>;"
     ],
+    "HelpSearch.d.ts": [
+      "export interface HelpSearchProps { label?: string; limit?: number; defaultQuery?: string; className?: string; }",
+      "export declare function HelpSearch({ label, limit, defaultQuery, className }: HelpSearchProps): import(\"react\").JSX.Element;"
+    ],
     "HelpTip.d.ts": [
       "import { type ReactNode } from \"react\";",
       "import { type HelpEntry } from \"./help.js\";",
@@ -76,15 +80,20 @@
     ],
     "help.d.ts": [
       "import { type ReactNode } from \"react\";",
-      "export interface HelpEntry { title: string; summary: ReactNode; href?: string; }",
+      "import { type Catalog, type Locale, type Translate } from \"./i18n.js\";",
+      "export interface HelpEntry { title: string; summary: ReactNode; href?: string; keywords?: string; }",
       "export interface HelpRegistry { entries: Readonly<Record<string, HelpEntry>>; errors?: Readonly<Record<string, string>>; }",
       "export interface HelpContextValue extends HelpRegistry { onOpen?: (id: string, entry: HelpEntry) => void; }",
       "export declare function HelpProvider({ children, ...value }: HelpContextValue & { children?: ReactNode; }): import(\"react\").JSX.Element;",
       "export declare function useHelpRegistry(): HelpContextValue;",
+      "export declare function errorKeyMatches(key: string, code: string): boolean;",
+      "export declare function errorKeyFor(map: Readonly<Record<string, unknown>> | undefined, code: string): string | null;",
       "export declare function helpIdForError(registry: HelpRegistry, code: string): string | null;",
+      "export interface HelpCatalogOptions { hrefs?: Readonly<Record<string, string>>; translate?: Translate; }",
+      "export declare function helpEntriesFromCatalog(catalog: Catalog, locale: Locale, options?: HelpCatalogOptions): Record<string, HelpEntry>;",
       "export declare function isInAppPath(value: string): boolean;",
       "export declare function safeHelpHref(href: string | undefined): string | undefined;",
-      "export interface HelpCoverage { missing: string[]; dangling: string[]; staleExceptions: string[]; }",
+      "export interface HelpCoverage { missing: string[]; dangling: string[]; staleExceptions: string[]; unusedMappings: string[]; }",
       "export declare function helpCoverage(codes: readonly string[], registry: HelpRegistry, exceptions?: Readonly<Record<string, string>>): HelpCoverage;"
     ],
     "i18n.d.ts": [
@@ -110,11 +119,13 @@
       "export { Collapsible, type CollapsibleProps } from \"./Collapsible.js\";",
       "export { ConfirmDialog, Dialog, type ConfirmDialogProps, type DialogProps } from \"./Dialog.js\";",
       "export { Field, Select, TextArea, TextInput, type FieldProps, type SelectOption, type SelectProps, type TextAreaProps, type TextInputProps, } from \"./Field.js\";",
-      "export { HelpProvider, helpCoverage, helpIdForError, isInAppPath, safeHelpHref, useHelpRegistry, type HelpContextValue, type HelpCoverage, type HelpEntry, type HelpRegistry, } from \"./help.js\";",
+      "export { HelpProvider, errorKeyFor, errorKeyMatches, helpCoverage, helpEntriesFromCatalog, helpIdForError, isInAppPath, safeHelpHref, useHelpRegistry, type HelpCatalogOptions, type HelpContextValue, type HelpCoverage, type HelpEntry, type HelpRegistry, } from \"./help.js\";",
+      "export { HelpSearch, type HelpSearchProps } from \"./HelpSearch.js\";",
       "export { ErrorHelp, HelpTip, type ErrorHelpProps, type HelpTipProps } from \"./HelpTip.js\";",
       "export { LOCALES, UiTextProvider, interpolate, lookup, resolveLocale, useCatalog, useLocale, type Catalog, type Locale, type MessageValues, type Messages, type TextFn, type Translate, type UiTextProviderProps, } from \"./i18n.js\";",
       "export { ListDetail, type ListDetailProps, type ListItem } from \"./ListDetail.js\";",
       "export { coreMessages, type CoreKey } from \"./messages.js\";",
+      "export { createHelpIndex, foldSearchText, nodeText, searchWords, type HelpIndex, type HelpSearchHit } from \"./search.js\";",
       "export { Spinner } from \"./Spinner.js\";",
       "export { Tooltip, type TooltipProps } from \"./Tooltip.js\";",
       "export { cx } from \"./util.js\";"
@@ -125,6 +136,16 @@
       "export type CoreKey = keyof typeof en;",
       "export type CoreMessages = Readonly<Record<CoreKey, string>>;",
       "export declare const coreMessages: Catalog<CoreKey>;"
+    ],
+    "search.d.ts": [
+      "import { type ReactNode } from \"react\";",
+      "import { type HelpEntry } from \"./help.js\";",
+      "export interface HelpSearchHit { id: string; entry: HelpEntry; score: number; }",
+      "export interface HelpIndex { search(query: string, options?: { limit?: number; }): HelpSearchHit[]; }",
+      "export declare function foldSearchText(text: string): string;",
+      "export declare function searchWords(text: string): string[];",
+      "export declare function nodeText(node: ReactNode): string;",
+      "export declare function createHelpIndex(entries: Readonly<Record<string, HelpEntry>>, errors?: Readonly<Record<string, string>>): HelpIndex;"
     ],
     "util.d.ts": [
       "import { type CoreKey } from \"./messages.js\";",
@@ -145,6 +166,9 @@
     "core.field.required",
     "core.help.button",
     "core.help.more",
+    "core.help.search.label",
+    "core.help.search.none",
+    "core.help.search.results",
     "core.list.empty",
     "core.list.noSelection"
   ],
@@ -189,6 +213,13 @@
     "ui-field__hint",
     "ui-field__label",
     "ui-field__required",
+    "ui-help-search",
+    "ui-help-search__label",
+    "ui-help-search__result",
+    "ui-help-search__results",
+    "ui-help-search__status",
+    "ui-help-search__summary",
+    "ui-help-search__title",
     "ui-helptip",
     "ui-helptip__button",
     "ui-helptip__more",

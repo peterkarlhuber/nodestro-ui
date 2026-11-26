@@ -19,7 +19,10 @@ function files(dir) {
   });
 }
 
-for (const dir of ["packages/core", "packages/ai"]) {
+// help ships texts only (no stylesheet); the component packages ship one each.
+const STYLED = new Set(["packages/core", "packages/ai"]);
+
+for (const dir of ["packages/core", "packages/ai", "packages/help"]) {
   describe(`${dir} is brand-neutral`, async () => {
     const shipped = await packageFiles(dir);
     it("in its sources", () => {
@@ -36,6 +39,8 @@ for (const dir of ["packages/core", "packages/ai"]) {
       }
     });
     it("uses only existing --ui- tokens and ui- classes", () => {
+      assert.equal(shipped.has("dist/styles.css"), STYLED.has(dir), `${dir}: dist/styles.css`);
+      if (!STYLED.has(dir)) return;
       const css = shipped.get("dist/styles.css").toString("utf-8");
       for (const m of css.matchAll(/var\(--([a-z0-9]+)-/g)) assert.equal(m[1], "ui", `var(--${m[1]}-…)`);
       for (const m of css.matchAll(/^\.([a-z0-9]+)-/gm)) assert.equal(m[1], "ui", `.${m[1]}-…`);

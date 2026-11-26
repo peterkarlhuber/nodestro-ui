@@ -21,6 +21,7 @@
 .ui-list-detail__item:focus-visible,
 .ui-helptip__button:focus-visible,
 .ui-helptip__more:focus-visible,
+.ui-help-search__title:focus-visible,
 .ui-dialog__close:focus-visible,
 .ui-dialog:focus-visible {
   outline: 2px solid var(--ui-color-focus);
@@ -450,4 +451,60 @@
 }
 .ui-error-help__code {
   font-family: var(--ui-font-mono);
+}
+
+/* HelpSearch: no motion at all, so nothing to reduce. */
+.ui-help-search {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+  font-size: var(--ui-text-sm);
+}
+.ui-help-search__label {
+  color: var(--ui-color-text);
+  font-weight: var(--ui-weight-semibold);
+}
+.ui-help-search__status {
+  margin: 0;
+  color: var(--ui-color-text-muted);
+  font-size: var(--ui-text-xs);
+}
+.ui-help-search__status:empty {
+  display: none;
+}
+.ui-help-search__results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ui-help-search__result {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-1);
+  padding: var(--ui-space-2) var(--ui-space-3);
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-md);
+  background: var(--ui-color-surface);
+}
+.ui-help-search__title {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ui-color-heading);
+  font: inherit;
+  font-weight: var(--ui-weight-semibold);
+  text-align: start;
+}
+a.ui-help-search__title,
+button.ui-help-search__title {
+  color: var(--ui-color-link);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.ui-help-search__summary {
+  color: var(--ui-color-text-muted);
 }

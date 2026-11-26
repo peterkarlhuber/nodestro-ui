@@ -21,8 +21,14 @@ import {
   TextInput,
   Tooltip,
   UiTextProvider,
+  HelpSearch,
+  createHelpIndex,
+  errorKeyFor,
+  foldSearchText,
   helpCoverage,
+  helpEntriesFromCatalog,
   helpIdForError,
+  nodeText,
   isInAppPath,
   safeHelpHref,
 } from "@nodestro/ui-core";
@@ -373,8 +379,9 @@ describe("HelpTip and context help", () => {
       missing: ["run.timeout"],
       dangling: ["run.gone"],
       staleExceptions: ["approval.comment_required", "old.code"],
+      unusedMappings: [],
     });
-    expect(helpCoverage(["approval.comment_required"], HELP)).toEqual({ missing: [], dangling: [], staleExceptions: [] });
+    expect(helpCoverage(["approval.comment_required"], HELP)).toEqual({ missing: [], dangling: [], staleExceptions: [], unusedMappings: ["run.gone"] });
   });
 });
 
@@ -422,5 +429,144 @@ describe("links that could leave the site (open redirect)", () => {
     render(<HelpTip entry={{ title: "T", summary: "S", href: "/\\evil.example" }} />);
     await userEvent.click(screen.getByRole("button", { name: "Help: T" }));
     expect(screen.queryByRole("link")).toBeNull();
+  });
+});
+
+describe("error families", () => {
+  const registry = {
+    entries: { "help.runs": { title: "Runs", summary: "S" }, "help.tools": { title: "Tools", summary: "S" } },
+    errors: { "run.*": "help.runs", "run.agent.*": "help.tools", "run.special": "help.tools", "http.*": "help.runs" },
+  };
+
+  it("resolve the exact code first, then the longest family", () => {
+    expect(helpIdForError(registry, "run.special")).toBe("help.tools");
+    expect(helpIdForError(registry, "run.agent.AuthenticationError")).toBe("help.tools");
+    expect(helpIdForError(registry, "run.timeout")).toBe("help.runs");
+    expect(helpIdForError(registry, "http.<status>")).toBe("help.runs");
+    expect(helpIdForError(registry, "run")).toBeNull();
+    expect(helpIdForError(registry, "run.")).toBeNull();
+    expect(helpIdForError(registry, "runner.x")).toBeNull();
+    expect(errorKeyFor(registry.errors, "run.*")).toBe("run.*");
+  });
+
+  it("count for coverage, exceptions may be families too", () => {
+    const codes = ["run.timeout", "run.agent.X", "notice.a", "notice.b", "other.x"];
+    expect(helpCoverage(codes, registry, { "notice.*": "Shown as information, not as an error", "run.timeout": "contradicts the family", "gone.*": "x" })).toEqual({
+      missing: ["other.x"],
+      dangling: [],
+      staleExceptions: ["gone.*", "run.timeout"],
+      unusedMappings: ["http.*", "run.special"],
+    });
+    expect(helpCoverage(["notice.a"], { entries: {} }, { "notice.*": " " }).staleExceptions).toEqual(["notice.*"]);
+  });
+});
+
+describe("help from a six-language catalog", () => {
+  const catalog = {
+    en: { "x.a.title": "Approvals", "x.a.summary": "Waits for a person.", "x.a.keywords": "consent", "x.b.title": "Budget", "x.b.summary": "Money." },
+    de: { "x.a.title": "Freigaben", "x.a.summary": "Wartet auf eine Person.", "x.a.keywords": "Zustimmung", "x.b.title": "Budget", "x.b.summary": "Geld." },
+    fr: {},
+    es: {},
+    it: {},
+    "pt-BR": {},
+  };
+
+  it("uses the language, falls back to English, and adds links", () => {
+    expect(helpEntriesFromCatalog(catalog, "de", { hrefs: { "x.a": "/docs/a" } })).toEqual({
+      "x.a": { title: "Freigaben", summary: "Wartet auf eine Person.", keywords: "Zustimmung", href: "/docs/a" },
+      "x.b": { title: "Budget", summary: "Geld." },
+    });
+    expect(helpEntriesFromCatalog(catalog, "fr")["x.a"]).toEqual({ title: "Approvals", summary: "Waits for a person.", keywords: "consent" });
+    const own = helpEntriesFromCatalog(catalog, "it", { translate: (key) => (key === "x.b.title" ? "Bilancio" : undefined) });
+    expect(own["x.b"].title).toBe("Bilancio");
+  });
+});
+
+describe("offline help search", () => {
+  const entries = {
+    "flow.approval": { title: "Approvals", summary: <>A step that <em>waits</em> for a person.</>, href: "/docs/approvals", keywords: "consent" },
+    "flow.budget": { title: "Budget", summary: "Limits what a run may spend; approvals do not change it." },
+    "de.translation": { title: "Übersetzung", summary: "Straße und Größe." },
+  };
+  const index = createHelpIndex(entries);
+
+  it("finds by word starts, ranks the title first, needs every word, ignores case and accents", () => {
+    expect(index.search("appro").map((hit) => hit.id)).toEqual(["flow.approval", "flow.budget"]);
+    expect(index.search("APPROVALS budget").map((hit) => hit.id)).toEqual(["flow.budget"]);
+    expect(index.search("consent").map((hit) => hit.id)).toEqual(["flow.approval"]);
+    expect(index.search("waits").map((hit) => hit.id)).toEqual(["flow.approval"]);
+    expect(index.search("ubersetzung strasse").map((hit) => hit.id)).toEqual(["de.translation"]);
+    expect(index.search("grosse").map((hit) => hit.id)).toEqual(["de.translation"]);
+    expect(index.search("flow.budget").map((hit) => hit.id)).toEqual(["flow.budget"]);
+    expect(index.search("  ")).toEqual([]);
+    expect(index.search("nothing-like-this")).toEqual([]);
+    expect(index.search("a", { limit: 1 })).toHaveLength(1);
+    const withErrors = createHelpIndex(entries, { "budget.*": "flow.budget", "approval.expired": "flow.approval" });
+    expect(withErrors.search(" budget.over_limit ").map((hit) => hit.id)).toEqual(["flow.budget"]);
+    expect(withErrors.search("approval.expired").map((hit) => hit.id)).toEqual(["flow.approval"]);
+    expect(withErrors.search("budget approvals").map((hit) => hit.id)).toEqual(["flow.budget"]);
+    expect(foldSearchText("ÉCOLE Æsop Straße")).toBe("ecole aesop strasse");
+    expect(nodeText(<p>a <b>b {1}</b>{false}{null}</p>).replace(/\s+/g, " ").trim()).toBe("a b 1");
+  });
+
+  it("is a labelled search with a live result count, opened through the product", async () => {
+    const onOpen = vi.fn();
+    render(
+      <HelpProvider entries={entries} onOpen={onOpen}>
+        <HelpSearch />
+      </HelpProvider>,
+    );
+    expect(screen.getByRole("search", { name: "Search help" })).toBeTruthy();
+    const field = screen.getByRole("searchbox", { name: "Search help" });
+    const status = screen.getByRole("status");
+    expect(status.textContent).toBe("");
+    expect(field.getAttribute("aria-describedby")).toBe(status.id);
+    await userEvent.type(field, "approval");
+    expect(status.textContent).toBe("Results: 2");
+    const links = screen.getAllByRole("link");
+    expect(links.map((link) => link.textContent)).toEqual(["Approvals"]);
+    expect(screen.getByRole("button", { name: "Budget" })).toBeTruthy();
+    await userEvent.click(links[0]);
+    expect(onOpen).toHaveBeenCalledWith("flow.approval", entries["flow.approval"]);
+    await userEvent.clear(field);
+    await userEvent.type(field, "zzz");
+    expect(status.textContent).toBe("No help found. Try other or fewer words.");
+    expect(screen.queryByRole("list")).toBeNull();
+  });
+
+  it("moves with the arrow keys and empties the field with Escape", async () => {
+    render(
+      <HelpProvider entries={entries} onOpen={() => undefined}>
+        <HelpSearch defaultQuery="appro" />
+      </HelpProvider>,
+    );
+    const field = screen.getByRole("searchbox");
+    field.focus();
+    await userEvent.keyboard("{ArrowDown}");
+    expect(document.activeElement?.textContent).toBe("Approvals");
+    await userEvent.keyboard("{ArrowDown}");
+    expect(document.activeElement?.textContent).toBe("Budget");
+    await userEvent.keyboard("{ArrowDown}");
+    expect(document.activeElement?.textContent).toBe("Budget");
+    await userEvent.keyboard("{ArrowUp}{ArrowUp}");
+    expect(document.activeElement).toBe(field);
+    await userEvent.keyboard("{Escape}");
+    expect((field as HTMLInputElement).value).toBe("");
+    expect(screen.queryByRole("list")).toBeNull();
+  });
+
+  it("follows only safe links and shows entries without a link or product handler as text", async () => {
+    render(
+      <UiTextProvider locale="de">
+        <HelpProvider entries={{ a: { title: "Alpha", summary: "x", href: "javascript:alert(1)" } }}>
+          <HelpSearch defaultQuery="alpha" />
+        </HelpProvider>
+      </UiTextProvider>,
+    );
+    expect(screen.getByRole("searchbox", { name: "Hilfe durchsuchen" })).toBeTruthy();
+    expect(screen.getByRole("status").textContent).toBe("Ergebnisse: 1");
+    expect(screen.queryByRole("link")).toBeNull();
+    expect(screen.queryByRole("button")).toBeNull();
+    expect(screen.getByText("Alpha").tagName).toBe("STRONG");
   });
 });

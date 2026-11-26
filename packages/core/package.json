@@ -1,8 +1,8 @@
 {
   "name": "@nodestro/ui-core",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "private": true,
-  "description": "Brand-neutral, accessible React building blocks: buttons, fields, dialogs, list and detail, collapsible sections, tooltips and context help.",
+  "description": "Brand-neutral, accessible React building blocks: buttons, fields, dialogs, list and detail, collapsible sections, tooltips, context help and offline help search.",
   "license": "SEE LICENSE IN LICENSE",
   "repository": {
     "type": "git",

@@ -17,16 +17,21 @@ export {
 } from "./Field.js";
 export {
   HelpProvider,
+  errorKeyFor,
+  errorKeyMatches,
   helpCoverage,
+  helpEntriesFromCatalog,
   helpIdForError,
   isInAppPath,
   safeHelpHref,
   useHelpRegistry,
+  type HelpCatalogOptions,
   type HelpContextValue,
   type HelpCoverage,
   type HelpEntry,
   type HelpRegistry,
 } from "./help.js";
+export { HelpSearch, type HelpSearchProps } from "./HelpSearch.js";
 export { ErrorHelp, HelpTip, type ErrorHelpProps, type HelpTipProps } from "./HelpTip.js";
 export {
   LOCALES,
@@ -46,6 +51,7 @@ export {
 } from "./i18n.js";
 export { ListDetail, type ListDetailProps, type ListItem } from "./ListDetail.js";
 export { coreMessages, type CoreKey } from "./messages.js";
+export { createHelpIndex, foldSearchText, nodeText, searchWords, type HelpIndex, type HelpSearchHit } from "./search.js";
 export { Spinner } from "./Spinner.js";
 export { Tooltip, type TooltipProps } from "./Tooltip.js";
 export { cx } from "./util.js";

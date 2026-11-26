@@ -2,14 +2,15 @@
 //
 //   dist/**/*.js     ES2022 modules, JSX compiled for the automatic runtime (react/jsx-runtime)
 //   dist/**/*.d.ts   type declarations (the public API a consumer type-checks against)
-//   dist/styles.css  the package stylesheet, copied unchanged
+//   dist/styles.css  the package stylesheet (src/styles.css), copied unchanged; a package without one (texts and data
+//                    only, such as help) ships none
 //
 // The TypeScript compiler is the pinned devDependency of the workspace, so the output depends only on the source,
 // the compiler version and the options below. The build also type-checks: any diagnostic fails it.
 //
 // A component package may import another workspace package (`@nodestro/ui-core`); for the type check the name maps
 // to that package's source, the emitted import stays the package name (a peer dependency of the consumer).
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -111,6 +112,6 @@ export function buildReactPackage(dir) {
     if (/sourceMappingURL/.test(text)) throw new Error(`${path}: unexpected source map reference`);
     out.set(path, Buffer.from(text.endsWith("\n") ? text : `${text}\n`, "utf-8"));
   }
-  out.set("dist/styles.css", readFileSync(join(src, "styles.css")));
+  if (existsSync(join(src, "styles.css"))) out.set("dist/styles.css", readFileSync(join(src, "styles.css")));
   return out;
 }

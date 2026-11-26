@@ -2,8 +2,9 @@ name: CI
 
 # Checks of the UI packages. `check` (Node 22 and 24): unit and contract tests (themes, CSS/JSON sync, WCAG contrast,
 # package graph, token mapping, vendored install, API contract against master, brand neutrality), the component tests
-# (Vitest, jsdom), the committed artifact manifest (same SHA-256 on both Node versions) and a second build compared byte
-# for byte. `browser`: axe-core (no WCAG A/AA violation) and the visual snapshots of the approval card per brand, in the
+# (Vitest, jsdom; among them the help coverage of the API error codes against the pinned list in errors/), the
+# committed artifact manifest (same SHA-256 on both Node versions) and a second build compared byte for byte.
+# `browser`: axe-core (no WCAG A/AA violation) and the visual snapshots of the approval card per brand, in the
 # runner's Google Chrome. No publish, no release. Every action is pinned by commit SHA (version in the comment), as in
 # the other repositories.
 

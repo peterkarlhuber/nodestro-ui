@@ -1,10 +1,13 @@
 // What the browser checks render: every component in its main states.
-import { Badge, Button, Collapsible, ErrorHelp, Field, HelpProvider, HelpTip, IconButton, ListDetail, Select, TextArea, TextInput, Tooltip } from "@nodestro/ui-core";
+import { Badge, Button, Collapsible, ErrorHelp, Field, HelpProvider, HelpSearch, HelpTip, IconButton, ListDetail, Select, TextArea, TextInput, Tooltip } from "@nodestro/ui-core";
 import { ApprovalCard, ChatMessage, RememberOptions, SourceList, ToolCallRow } from "@nodestro/ui-ai";
 
 const noop = () => {};
 const HELP = {
-  entries: { "flow.approval": { title: "Approvals", summary: "A step that waits for a person.", href: "/docs/approvals" } },
+  entries: {
+    "flow.approval": { title: "Approvals", summary: "A step that waits for a person.", href: "/docs/approvals" },
+    "flow.budget": { title: "Budget", summary: "What a run may spend; an approval can raise it." },
+  },
   errors: { "approval.expired": "flow.approval" },
 };
 
@@ -97,6 +100,7 @@ export function Gallery() {
       </Collapsible>
       <ListDetail label="Workflows" items={[{ id: "a", label: "Offers", description: "3 steps" }, { id: "b", label: "Invoices" }]} selectedId="a" onSelect={noop} renderDetail={(item) => <p>Details of {item.id}</p>} />
       <ErrorHelp code="approval.expired">The time to decide has passed.</ErrorHelp>
+      <HelpSearch defaultQuery="approval" />
     </HelpProvider>
   );
 }

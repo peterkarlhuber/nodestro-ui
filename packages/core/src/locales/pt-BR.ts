@@ -12,4 +12,7 @@ export default {
   "core.help.more": "Saiba mais",
   "core.error.code": "Código de erro {{code}}",
   "core.error.help": "Como corrigir",
+  "core.help.search.label": "Pesquisar na ajuda",
+  "core.help.search.results": "Resultados: {{count}}",
+  "core.help.search.none": "Nenhuma ajuda encontrada. Tente outras palavras ou menos palavras.",
 } satisfies CoreMessages;
