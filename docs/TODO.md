@@ -36,4 +36,9 @@ the browser checks and the first product step in nodestro-studio (wave 3, N-16 s
 ## Repository
 
 - [x] npm ecosystem in `.github/dependabot.yml`.
+- [x] CI-FAST: `.github/ci-manifest.json` lists the mandatory jobs of `ci.yml` (`check (node 22)`, `check (node 24)`,
+  `browser (axe, snapshots per brand)`); `ci-ok.yml` reports on them (report-only, as in the other repositories), with
+  the byte-identical `.github/scripts/ci_ok.py`, its tests and `ruff.toml`. No new job; K8 applies from now on.
+- [ ] Run `python3 -I .github/scripts/ci_ok.py --self-check --root .` whenever the manifest or a job name in
+  `ci.yml` changes (it is not a PR step in this wave, per studio `docs/architecture/ci-fast/ci-ok.md`).
 - [ ] Re-run `node scripts/mapping.mjs --verify <dir with the product checkouts>` before further product adoption.
