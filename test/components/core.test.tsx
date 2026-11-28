@@ -281,6 +281,27 @@ describe("ListDetail", () => {
   });
 });
 
+describe("Button blocked for a reason", () => {
+  it("stays focusable, looks blocked and does nothing when pressed", async () => {
+    const onClick = vi.fn();
+    render(
+      <>
+        <Button aria-disabled aria-describedby="why" onClick={onClick}>
+          Reject
+        </Button>
+        <span id="why">Write a comment first.</span>
+      </>,
+    );
+    const button = screen.getByRole("button", { name: "Reject" });
+    await userEvent.tab();
+    expect(document.activeElement).toBe(button);
+    await userEvent.click(button);
+    await userEvent.keyboard("{Enter}");
+    expect(onClick).not.toHaveBeenCalled();
+    expect(button.getAttribute("aria-disabled")).toBe("true");
+  });
+});
+
 describe("Tooltip", () => {
   it("describes its element, shows on focus and hides on Escape", async () => {
     render(

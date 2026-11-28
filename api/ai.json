@@ -1,6 +1,6 @@
 {
   "name": "@nodestro/ui-ai",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -16,13 +16,13 @@
   },
   "declarations": {
     "ApprovalCard.d.ts": [
-      "import { type ReactNode } from \"react\";",
+      "import { type HTMLAttributes, type ReactNode } from \"react\";",
       "import { type RejectOnlyReason, type RememberChoice } from \"./RememberOptions.js\";",
       "export type ApprovalKind = \"step\" | \"tool\" | \"budget\";",
       "export declare function formatCountdown(seconds: number): string;",
       "export interface ApprovalDecision { comment: string; remember: RememberChoice | null; }",
-      "export interface ApprovalCardProps { kind?: ApprovalKind; title: string; context?: ReactNode; help?: ReactNode; instructions?: ReactNode; badges?: ReactNode; arguments?: unknown; children?: ReactNode; secondsLeft?: number | null; allowComment?: boolean; requireCommentOnReject?: boolean; rememberAgent?: string | null; rejectOnly?: RejectOnlyReason | null; rejectHint?: ReactNode; error?: ReactNode; pending?: \"approve\" | \"reject\" | null; onApprove: (decision: ApprovalDecision) => void; onReject: (decision: ApprovalDecision) => void; className?: string; }",
-      "export declare function ApprovalCard({ kind, title, context, help, instructions, badges, arguments: args, children, secondsLeft, allowComment, requireCommentOnReject, rememberAgent, rejectOnly, rejectHint, error, pending, onApprove, onReject, className, }: ApprovalCardProps): import(\"react\").JSX.Element;"
+      "export interface ApprovalCardProps extends Omit<HTMLAttributes<HTMLElement>, \"title\" | \"children\" | \"onChange\"> { kind?: ApprovalKind; title: string; context?: ReactNode; help?: ReactNode; instructions?: ReactNode; badges?: ReactNode; arguments?: unknown; children?: ReactNode; secondsLeft?: number | null; allowComment?: boolean; requireCommentOnReject?: boolean; rememberAgent?: string | null; rejectOnly?: RejectOnlyReason | null; rejectHint?: ReactNode; error?: ReactNode; pending?: \"approve\" | \"reject\" | null; onApprove: (decision: ApprovalDecision) => void; onReject: (decision: ApprovalDecision) => void; className?: string; label?: string; extra?: ReactNode; remember?: RememberChoice; onRememberChange?: (value: RememberChoice) => void; rememberIncomplete?: boolean; }",
+      "export declare function ApprovalCard({ kind, title, context, help, instructions, badges, arguments: args, children, secondsLeft, allowComment, requireCommentOnReject, rememberAgent, rejectOnly, rejectHint, error, pending, onApprove, onReject, className, label, extra, remember: rememberValue, onRememberChange, rememberIncomplete, ...rest }: ApprovalCardProps): import(\"react\").JSX.Element;"
     ],
     "ChatMessage.d.ts": [
       "import type { ReactNode } from \"react\";",

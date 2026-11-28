@@ -62,11 +62,16 @@ describe("ApprovalCard", () => {
 
   it("needs a comment to reject when asked, and says so next to the button", async () => {
     const { onReject, reject } = card({ allowComment: true, requireCommentOnReject: true });
-    expect((reject() as HTMLButtonElement).disabled).toBe(true);
+    // Blocked, but focusable so the reason can be reached (aria-disabled, described by the reason); a press does nothing.
+    expect(reject().getAttribute("aria-disabled")).toBe("true");
+    expect((reject() as HTMLButtonElement).disabled).toBe(false);
     const reason = document.getElementById(reject().getAttribute("aria-describedby") ?? "");
     expect(reason?.textContent).toBe("Write a comment to reject.");
+    await userEvent.click(reject());
+    expect(onReject).not.toHaveBeenCalled();
     expect(screen.getByLabelText("Comment (required to reject)")).toBeTruthy();
     await userEvent.type(screen.getByLabelText("Comment (required to reject)"), "wrong recipient");
+    expect(reject().getAttribute("aria-disabled")).toBeNull();
     expect((reject() as HTMLButtonElement).disabled).toBe(false);
     await userEvent.click(reject());
     expect(onReject).toHaveBeenCalledWith({ comment: "wrong recipient", remember: null });
@@ -142,6 +147,51 @@ describe("ApprovalCard", () => {
     expect(formatCountdown(-5)).toBe("0:00");
     expect(formatCountdown(61.9)).toBe("1:01");
     expect(formatCountdown(3600)).toBe("60:00");
+  });
+});
+
+describe("ApprovalCard for a product's own cards", () => {
+  it("takes the product's name and attributes", () => {
+    card({ title: "Freigabe", label: "Approval: Freigabe · Offers · 10:00", "data-testid": "step-approval", id: "card-1" });
+    const article = screen.getByRole("article", { name: "Approval: Freigabe · Offers · 10:00" });
+    expect(article.getAttribute("data-testid")).toBe("step-approval");
+    expect(article.id).toBe("card-1");
+  });
+
+  it("places the product's own fields after the comment", () => {
+    card({ allowComment: true, extra: <label>Note to the agent<textarea /></label> });
+    const comment = screen.getByLabelText("Comment");
+    const note = screen.getByLabelText("Note to the agent");
+    expect(comment.compareDocumentPosition(note) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("lets the product hold the remembered choice and block an incomplete rule for its own reasons", async () => {
+    function Controlled({ known }: { known: boolean }) {
+      const [value, setValue] = useState<RememberChoice>(DEFAULT_REMEMBER);
+      return (
+        <ApprovalCard
+          kind="tool"
+          title="mailer"
+          rememberAgent="writer"
+          remember={value}
+          onRememberChange={setValue}
+          rememberIncomplete={!known && value.scope === "agent"}
+          onApprove={onApprove}
+          onReject={onReject}
+        />
+      );
+    }
+    const onApprove = vi.fn();
+    const onReject = vi.fn();
+    const { rerender } = render(<Controlled known={false} />);
+    // This call only: nothing to complete.
+    expect((screen.getByRole("button", { name: "Approve" }) as HTMLButtonElement).disabled).toBe(false);
+    await userEvent.selectOptions(screen.getByLabelText("How long"), "until_revoked");
+    expect((screen.getByRole("button", { name: "Approve" }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole("button", { name: "Reject" }) as HTMLButtonElement).disabled).toBe(true);
+    rerender(<Controlled known />);
+    await userEvent.click(screen.getByRole("button", { name: "Approve" }));
+    expect(onApprove).toHaveBeenLastCalledWith({ comment: "", remember: { duration: "until_revoked", scope: "agent", until: "" } });
   });
 });
 

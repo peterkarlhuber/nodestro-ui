@@ -28,5 +28,13 @@ import { ApprovalCard } from '@nodestro/ui-ai';
 />;
 ```
 
+Since 0.3.0 a product can use the card for all of its approvals and keep its own data and decisions: `label` names
+the card (a list of cards may need where each one waits), `extra` adds fields after the comment (for example a note
+to the agent), `remember`/`onRememberChange` hold the remembered choice in the product and `rememberIncomplete` adds
+the product's own reason that a chosen rule is not complete yet (for example while the asking agent is not known);
+other attributes (`data-*`, `id`) go to the card's root element. A decision blocked for a reason the person can fix
+(a missing comment) stays focusable and is described by the reason next to it (`aria-disabled`, core 0.2.3 `Button`);
+one that cannot be taken at all (sending, time up, an incomplete rule) is disabled.
+
 Styles: `@import '@nodestro/ui-ai/styles.css';` after the core styles. Texts: keys `ai.*` in six languages
 (`aiMessages`); a product can answer any key itself through `UiTextProvider` from `@nodestro/ui-core`.
