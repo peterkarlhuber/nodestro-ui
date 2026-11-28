@@ -7,6 +7,7 @@ export default {
   "ai.approval.kind.budget": "Una ejecución espera una decisión de presupuesto",
   "ai.approval.approve": "Aprobar",
   "ai.approval.reject": "Rechazar",
+  "ai.approval.rejectConfirm": "¿Rechazar de verdad?",
   "ai.approval.arguments": "Argumentos",
   "ai.approval.nothingToReview": "No hay nada que revisar.",
   "ai.approval.comment": "Comentario",

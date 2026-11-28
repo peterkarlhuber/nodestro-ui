@@ -39,8 +39,8 @@ the browser checks and the first product step in nodestro-studio (wave 3, N-16 s
   `bump_pins.py`, one component in use (the remember options of the tool approval card), contract test.
 - [x] nodestro-studio: the step and tool approval cards use `ApprovalCard` (ai 0.3.0: `label`, `extra`, controlled
   remember options, `rememberIncomplete`, root attributes; a decision blocked by a missing comment stays focusable).
-- [ ] nodestro-studio: the budget approval card, then the tool call rows, messages and sources (its docs/TODO.md lists
-  the order).
+- [ ] nodestro-studio: the budget approval card (ai 0.4.0: `confirmReject`, `readOnly`, `actionsHelp`, `footer`),
+  then the tool call rows, messages and sources (its docs/TODO.md lists the order).
 - [ ] Alias layer per product (`--nd-bg: var(--ui-color-bg)`, generated from `migration/*.json`), then a codemod per
   repository, then remove the alias layer.
 - [ ] A second product renders the same approval card with its own brand.
