@@ -12,12 +12,12 @@
     },
     {
       "name": "@nodestro/ui-core",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "directory": "packages/core",
-      "file": "nodestro-ui-core-0.2.0.tgz",
-      "size": 121372,
-      "sha256": "80d203ec4b0c0cf9d99707874f7fc51c51f2ac95a7b67fffec45fe5dac902b7e",
-      "integrity": "sha512-XYLtntu4RdnU1i16Cinz5aMULybM7bsiFwi46GMNl82MaaM3XYP4SEJtTMt7Q7mEOZ7QbmiFOlpC+fVTmWaHsA=="
+      "file": "nodestro-ui-core-0.2.1.tgz",
+      "size": 135713,
+      "sha256": "83f4f2ab5f1b7172162a12c6f8dccc4b5f65025118c5e6b204de7284dac8ea28",
+      "integrity": "sha512-uUgoAyTujlNWRDyWppekxeE+iJ7IvRv5K8sZ7i0/u3oPutKD3o5+CfyQ730nWWNiUjexKsv4dB1cia6DDkqsYQ=="
     },
     {
       "name": "@nodestro/ui-help",

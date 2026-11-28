@@ -328,7 +328,9 @@ describe("HelpTip and context help", () => {
     expect(within(panel).getByRole("link", { name: "Learn more" }).getAttribute("href")).toBe("/docs/approvals");
     within(panel).getByRole("link").focus();
     await userEvent.keyboard("{Escape}");
-    expect(panel.hidden).toBe(true);
+    // Closed: the panel is gone (in the browser it is in the DOM only while open, core 0.2.1).
+    expect(panel.isConnected).toBe(false);
+    expect(button.getAttribute("aria-expanded")).toBe("false");
     expect(document.activeElement).toBe(button);
   });
 

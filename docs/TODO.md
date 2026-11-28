@@ -42,9 +42,15 @@ the browser checks and the first product step in nodestro-studio (wave 3, N-16 s
 - [ ] Alias layer per product (`--nd-bg: var(--ui-color-bg)`, generated from `migration/*.json`), then a codemod per
   repository, then remove the alias layer.
 - [ ] A second product renders the same approval card with its own brand.
-- [ ] nodestro-studio: bump the pins to core 0.2.0, ai 0.2.0 and help 0.1.0; show `ErrorHelp` with `platformHelp` for
-  API errors and `HelpSearch` in its help panel (its own `components/Tooltip.tsx` HelpTip and `lib/help.ts` entries
-  can move onto the catalog shape step by step).
+- [x] nodestro-studio: bump the pins to core 0.2.0, ai 0.2.0 and help 0.1.0; show `ErrorHelp` with `platformHelp` for
+  API errors and `HelpSearch` in its help panel.
+- [x] `HelpTip` for every help button of a product (core 0.2.1, studio ST-068): hover and keyboard focus, hoverable
+  and dismissible panel (WCAG 1.4.13), Escape closes only the panel inside a dialog, top layer above modal dialogs,
+  `data-help` on the button. nodestro-studio moved its own help tooltips onto it.
+- [ ] A browser check of the open panel (top layer above a modal dialog, axe on the open state); the browser checks
+  here render static markup only, so today the product's browser tests (studio `e2e/settings-ui.mjs`) cover it.
+- [ ] The plain `Tooltip` in the top layer as well (it is still positioned with CSS inside its wrapper), so products
+  can drop their own tooltip for buttons.
 
 ## Repository
 

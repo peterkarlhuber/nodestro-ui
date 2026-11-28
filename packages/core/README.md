@@ -52,6 +52,17 @@ The package ships no help content. The product registers its entries and the err
 </HelpProvider>
 ```
 
+`HelpTip` (0.2.1) behaves like a tooltip that can also be pinned: pointer hover opens it after a short delay and
+keyboard focus at once; the panel can itself be hovered, Escape dismisses it without closing a dialog around it, and
+it stays until the pointer or focus leaves (WCAG 1.4.13). A press (click, tap, Enter, Space) pins it open; then Tab
+leads into its link and on to the next control, never a focus trap. While open the button is described by the
+summary (`aria-describedby`), and `aria-expanded`/`aria-controls` name the panel (a labelled group, since it holds a
+link). The panel follows the button in the DOM and is shown in the top layer as a manual popover, so it is painted
+above modal dialogs and outside every `overflow`; it is placed inside the window through the CSSOM (no style
+attribute, strict CSP). In the browser the panel is in the DOM only while it is open (its title would otherwise
+double the label next to it for find-in-page and text search); server-rendered markup lists it hidden. The button carries `data-help="<id>"`, so a product can find help by what is on its page (for
+example a settings search that reads each setting's help from the registry).
+
 An error map key is an exact code or a family ending in `.*` (`'approval.*'`: every code that starts with
 `approval.`); the exact code wins, then the longest family. `helpCoverage(codes, registry, exceptions)` returns the
 codes without help or exception, references to missing entries, stale exceptions (exceptions may be families too)
