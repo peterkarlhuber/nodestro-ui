@@ -5,7 +5,7 @@
 //   (the panel itself can be hovered, WCAG 1.4.13). A press (click, tap, Enter, Space) pins it open until a second
 //   press, Escape or a press outside. Touch has no hover: a tap pins it.
 // - Escape closes only the panel (never the dialog around it) and returns focus to the button when it was inside.
-// - One panel is open at a time. Showing cancels a pending close, so a close queued by an earlier pointer leave
+// - One panel is open at a time (and no Tooltip next to it). Showing cancels a pending close, so a close queued by an earlier pointer leave
 //   never hides a panel that keyboard focus has just opened.
 // - The panel follows the button in the DOM. Once pinned, Tab from the button leads into its link and on to the next
 //   control (never a focus trap); a panel shown only by passing focus keeps the normal Tab order (its link is not a
@@ -17,13 +17,11 @@
 // ErrorHelp shows an error with its stable code and, when the product registered one, the help that explains it.
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { helpIdForError, safeHelpHref, useHelpRegistry, type HelpEntry } from "./help.js";
-import { HAS_POPOVER, focusVisible, lowerLayer, positionLayer, raiseLayer } from "./layer.js";
+import { HAS_POPOVER, claimLayer, focusVisible, lowerLayer, positionLayer, raiseLayer, releaseLayer } from "./layer.js";
 import { cx, useCoreText } from "./util.js";
 
 const OPEN_DELAY = 350;
 const CLOSE_DELAY = 140;
-
-let closeActive: (() => void) | null = null;
 
 const noSubscription = () => () => undefined;
 
@@ -64,8 +62,7 @@ export function HelpTip({ id, entry: given, topic, className }: HelpTipProps) {
   const show = useCallback(
     (next: Exclude<OpenState, "closed">) => {
       window.clearTimeout(timer.current);
-      if (closeActive && closeActive !== close) closeActive();
-      closeActive = close;
+      claimLayer(close);
       setState(next);
     },
     [close],
@@ -77,7 +74,7 @@ export function HelpTip({ id, entry: given, topic, className }: HelpTipProps) {
 
   useEffect(() => () => {
     window.clearTimeout(timer.current);
-    if (closeActive === close) closeActive = null;
+    releaseLayer(close);
   }, [close]);
 
   // Into the top layer and next to the button while open; out of it when closed.
@@ -92,7 +89,7 @@ export function HelpTip({ id, entry: given, topic, className }: HelpTipProps) {
 
   useEffect(() => {
     if (!open) {
-      if (closeActive === close) closeActive = null;
+      releaseLayer(close);
       return;
     }
     // Captured before a dialog's own handler: Escape closes the panel and goes no further.

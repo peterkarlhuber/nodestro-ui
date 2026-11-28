@@ -54,4 +54,5 @@ export { coreMessages, type CoreKey } from "./messages.js";
 export { createHelpIndex, foldSearchText, nodeText, searchWords, type HelpIndex, type HelpSearchHit } from "./search.js";
 export { Spinner } from "./Spinner.js";
 export { Tooltip, type TooltipProps } from "./Tooltip.js";
+export { type HelpTooltipProps } from "./Tooltip.js";
 export { cx } from "./util.js";

@@ -136,7 +136,8 @@ check). Each file becomes `dist/<file>.js` plus `.d.ts`; `src/styles.css` ships 
   wired by the components (Field), keyboard behaviour inside the component (focus trap and focus return in Dialog,
   arrow keys in ListDetail, Escape for Tooltip and HelpTip), state as text (badges, busy, reasons next to disabled
   buttons). Checked by the component tests and by axe-core in Chrome for every brand in light and dark.
-- **CSP-strict:** no inline styles and no runtime style injection; positions are pure CSS.
+- **CSP-strict:** no style attributes and no runtime style injection; floating panels (Tooltip, HelpTip) are placed
+  through the CSSOM (`element.style`), which a Content-Security-Policy without `'unsafe-inline'` allows.
 - **Props and texts only:** components fetch nothing and decide nothing (the approval card calls back with the
   comment and the remembered choice). Texts come from per-package catalogs in six languages through
   `UiTextProvider`; a product can answer any key from its own i18n.

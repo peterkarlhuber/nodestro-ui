@@ -1,5 +1,5 @@
-// Floating panels above everything else (HelpTip): how a panel gets into the browser's top layer and where it is
-// placed.
+// Floating panels above everything else (HelpTip, Tooltip): how a panel gets into the browser's top layer, where it
+// is placed, and that only one of them is open at a time.
 //
 // - The panel stays in the DOM next to its anchor, so inside a modal dialog it is part of the dialog (the rest of the
 //   page is inert there) and its link follows the anchor in the keyboard order.
@@ -49,8 +49,22 @@ export function placeLayer(
   size: { width: number; height: number },
   view: { width: number; height: number },
 ): Placement {
+  return placeLayerAt(rect, size, view, "top");
+}
+
+/**
+ * The panel's place on the preferred side of the anchor ("top": above, "bottom": below), on the other side when it
+ * does not fit there and the other side has more room; shifted sideways at the window's edges, always inside it.
+ */
+export function placeLayerAt(
+  rect: { top: number; bottom: number; left: number; width: number },
+  size: { width: number; height: number },
+  view: { width: number; height: number },
+  side: "top" | "bottom",
+): Placement {
   const room = { above: rect.top - GAP - MARGIN, below: view.height - rect.bottom - GAP - MARGIN };
-  const below = size.height > room.above && room.below >= room.above;
+  const below =
+    side === "bottom" ? !(size.height > room.below && room.above > room.below) : size.height > room.above && room.below >= room.above;
   const wanted = below ? rect.bottom + GAP : rect.top - size.height - GAP;
   const top = Math.max(MARGIN, Math.min(wanted, view.height - size.height - MARGIN));
   const centre = rect.left + rect.width / 2 - size.width / 2;
@@ -60,12 +74,30 @@ export function placeLayer(
 
 /** Places `panel` next to `anchor` in the window. */
 export function positionLayer(panel: HTMLElement, anchor: HTMLElement): Placement {
+  return positionLayerAt(panel, anchor, "top");
+}
+
+/** Places `panel` on the preferred side of `anchor` in the window (placeLayerAt). */
+export function positionLayerAt(panel: HTMLElement, anchor: HTMLElement, side: "top" | "bottom"): Placement {
   const doc = anchor.ownerDocument;
   const view = { width: doc.documentElement.clientWidth || window.innerWidth, height: window.innerHeight };
-  const place = placeLayer(anchor.getBoundingClientRect(), { width: panel.offsetWidth, height: panel.offsetHeight }, view);
+  const place = placeLayerAt(anchor.getBoundingClientRect(), { width: panel.offsetWidth, height: panel.offsetHeight }, view, side);
   panel.style.setProperty("top", `${place.top}px`);
   panel.style.setProperty("left", `${place.left}px`);
   return place;
+}
+
+let active: (() => void) | null = null;
+
+/** Makes `close` the one open floating panel: the panel open before it (a tooltip or a help panel) is closed. */
+export function claimLayer(close: () => void): void {
+  if (active && active !== close) active();
+  active = close;
+}
+
+/** Forgets `close` once its panel is closed or gone. */
+export function releaseLayer(close: () => void): void {
+  if (active === close) active = null;
 }
 
 /** Whether an element was focused by the keyboard (focus by a pointer press does not open hover help). */

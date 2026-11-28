@@ -49,8 +49,10 @@ the browser checks and the first product step in nodestro-studio (wave 3, N-16 s
   `data-help` on the button. nodestro-studio moved its own help tooltips onto it.
 - [ ] A browser check of the open panel (top layer above a modal dialog, axe on the open state); the browser checks
   here render static markup only, so today the product's browser tests (studio `e2e/settings-ui.mjs`) cover it.
-- [ ] The plain `Tooltip` in the top layer as well (it is still positioned with CSS inside its wrapper), so products
-  can drop their own tooltip for buttons.
+- [x] The plain `Tooltip` for every button, badge and value of a product (core 0.2.2, studio ST-068): hover after a
+  delay and keyboard focus at once, hoverable, Escape hides it and still reaches the dialog, one tooltip or help panel
+  at a time, top layer above modal dialogs, placement inside the window, optional help entry with its link
+  (`help="<id>"`). nodestro-studio moves its own `Tooltip`/`Hint` onto it.
 
 ## Repository
 

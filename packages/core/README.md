@@ -11,7 +11,7 @@ strict Content-Security-Policy (`style-src 'self'`): no inline styles, no inject
 | `Dialog`, `ConfirmDialog` | native `<dialog>`, focus moves in, Tab is trapped, Escape closes, focus returns to the opener; the confirmation starts on Cancel |
 | `ListDetail` | a listbox with one tab stop; arrow keys, Home and End; details labelled by the selected entry |
 | `Collapsible` | heading plus disclosure button (`aria-expanded`, `aria-controls`), hidden region while collapsed |
-| `Tooltip` | shown on hover and focus, Escape hides it, always linked with `aria-describedby` (WCAG 1.4.13) |
+| `Tooltip` | explains one element on hover and focus, optionally with a registered help entry's link; hoverable, Escape hides it (WCAG 1.4.13); top layer above modal dialogs |
 | `HelpTip`, `HelpProvider`, `ErrorHelp`, `helpCoverage` | context help by id, error code to help, and a coverage check for the product's tests |
 | `HelpSearch`, `createHelpIndex` | offline full-text search over the registered help: labelled search landmark, result count in a polite status, arrow keys between field and results, Escape empties the field |
 | `Badge`, `Spinner` | text first, the tone only adds colour |
@@ -62,6 +62,26 @@ above modal dialogs and outside every `overflow`; it is placed inside the window
 attribute, strict CSP). In the browser the panel is in the DOM only while it is open (its title would otherwise
 double the label next to it for find-in-page and text search); server-rendered markup lists it hidden. The button carries `data-help="<id>"`, so a product can find help by what is on its page (for
 example a settings search that reads each setting's help from the registry).
+
+`Tooltip` (0.2.2) explains one element (a button, a badge, a value) and is not a help button of its own: pointer
+hover shows it after a short delay, keyboard focus (`:focus-visible`) at once, touch never; the tooltip itself can be
+hovered and stays until pointer and focus leave (WCAG 1.4.13); a press on the element hides it. Escape hides it and is
+not consumed, so the same Escape still closes a dialog around it (a tooltip only names a control, often the one a
+dialog focuses first). One tooltip or help panel is open at a time. Like the HelpTip panel it follows its element in
+the DOM (inside a modal dialog it is part of the dialog), is shown in the top layer as a manual popover, placed on the
+preferred side (`placement`), flipped and shifted to stay inside the window and scrolls when taller than it; in the
+browser it is in the DOM only while shown, and the element is `aria-describedby` its text then. With
+`help="<id>"` it shows the registered entry's summary (or `content`) and a "Learn more" link that opens the article
+through `onOpen`; the link is for the pointer, not a Tab stop.
+
+```tsx
+<Tooltip content="Runs the workflow once"><button type="button">Run</button></Tooltip>
+<Tooltip help="flow.approval"><button type="button">Approve</button></Tooltip>
+```
+
+Changed against 0.2.1 (no prop or class removed): the tooltip is no longer wrapped in a `span.ui-tooltip` around the
+element; `.ui-tooltip` is now the tooltip itself (with `--top`/`--bottom` for the side it is shown on and
+`__bubble` for its box). Escape is no longer stopped at the tooltip. Its text is in the DOM only while shown.
 
 An error map key is an exact code or a family ending in `.*` (`'approval.*'`: every code that starts with
 `approval.`); the exact code wins, then the longest family. `helpCoverage(codes, registry, exceptions)` returns the
