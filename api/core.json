@@ -1,6 +1,6 @@
 {
   "name": "@nodestro/ui-core",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -76,7 +76,9 @@
     "Tooltip.d.ts": [
       "import { type ReactElement, type ReactNode } from \"react\";",
       "export interface TooltipProps { content: ReactNode; children: ReactElement<{ \"aria-describedby\"?: string; }>; placement?: \"top\" | \"bottom\"; className?: string; }",
-      "export declare function Tooltip({ content, children, placement, className }: TooltipProps): import(\"react\").JSX.Element;"
+      "export interface HelpTooltipProps extends Omit<TooltipProps, \"content\"> { help: string; content?: ReactNode; }",
+      "export declare function Tooltip({ content, children, placement, className }: TooltipProps): import(\"react\").JSX.Element;",
+      "export declare function Tooltip(props: HelpTooltipProps): import(\"react\").JSX.Element;"
     ],
     "help.d.ts": [
       "import { type ReactNode } from \"react\";",
@@ -128,6 +130,7 @@
       "export { createHelpIndex, foldSearchText, nodeText, searchWords, type HelpIndex, type HelpSearchHit } from \"./search.js\";",
       "export { Spinner } from \"./Spinner.js\";",
       "export { Tooltip, type TooltipProps } from \"./Tooltip.js\";",
+      "export { type HelpTooltipProps } from \"./Tooltip.js\";",
       "export { cx } from \"./util.js\";"
     ],
     "layer.d.ts": [
@@ -136,7 +139,11 @@
       "export declare function lowerLayer(panel: HTMLElement): void;",
       "export interface Placement { top: number; left: number; below: boolean; }",
       "export declare function placeLayer(rect: { top: number; bottom: number; left: number; width: number; }, size: { width: number; height: number; }, view: { width: number; height: number; }): Placement;",
+      "export declare function placeLayerAt(rect: { top: number; bottom: number; left: number; width: number; }, size: { width: number; height: number; }, view: { width: number; height: number; }, side: \"top\" | \"bottom\"): Placement;",
       "export declare function positionLayer(panel: HTMLElement, anchor: HTMLElement): Placement;",
+      "export declare function positionLayerAt(panel: HTMLElement, anchor: HTMLElement, side: \"top\" | \"bottom\"): Placement;",
+      "export declare function claimLayer(close: () => void): void;",
+      "export declare function releaseLayer(close: () => void): void;",
       "export declare function focusVisible(element: Element): boolean;"
     ],
     "messages.d.ts": [
@@ -251,6 +258,7 @@
     "ui-tooltip--bottom",
     "ui-tooltip--top",
     "ui-tooltip__bubble",
+    "ui-tooltip__link",
     "ui-visually-hidden"
   ]
 }

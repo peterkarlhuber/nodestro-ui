@@ -289,18 +289,25 @@ describe("Tooltip", () => {
       </Tooltip>,
     );
     const button = screen.getByRole("button", { name: "Run" });
-    const tip = document.getElementById(button.getAttribute("aria-describedby") ?? "");
-    expect(tip?.getAttribute("role")).toBe("tooltip");
-    expect(tip?.textContent).toBe("Runs the workflow once");
-    expect(tip?.hidden).toBe(true);
+    const tipOf = () => document.getElementById(button.getAttribute("aria-describedby") ?? "")?.closest<HTMLElement>("[role=tooltip]");
+    // Hidden, the tooltip is not in the page (in the browser; server markup lists it hidden).
+    expect(screen.queryByRole("tooltip")).toBeNull();
+    expect(button.getAttribute("aria-describedby")).toBeNull();
     await userEvent.tab();
-    expect(tip?.hidden).toBe(false);
+    expect(tipOf()?.textContent).toBe("Runs the workflow once");
+    expect(tipOf()?.hidden).toBe(false);
+    expect(document.getElementById(button.getAttribute("aria-describedby") ?? "")?.textContent).toBe("Runs the workflow once");
     await userEvent.keyboard("{Escape}");
-    expect(tip?.hidden).toBe(true);
+    expect(screen.queryByRole("tooltip")).toBeNull();
+    expect(button.getAttribute("aria-describedby")).toBeNull();
+    button.blur();
     await userEvent.hover(button);
-    expect(tip?.hidden).toBe(false);
+    // After the hover delay (Tooltip.tsx: 350 ms), and hidden again after the close delay (140 ms).
+    await act(() => new Promise((resolve) => window.setTimeout(resolve, 400)));
+    expect(tipOf()?.textContent).toBe("Runs the workflow once");
     await userEvent.unhover(button);
-    expect(tip?.hidden).toBe(true);
+    await act(() => new Promise((resolve) => window.setTimeout(resolve, 200)));
+    expect(screen.queryByRole("tooltip")).toBeNull();
   });
 });
 

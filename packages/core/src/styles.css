@@ -347,35 +347,59 @@
   min-width: 0;
 }
 
-/* Tooltip */
+/* Tooltip. It follows its element in the DOM and is shown in the top layer as a manual popover (Tooltip.tsx,
+   layer.ts), so it is painted above modal dialogs; without the Popover API it is a fixed element above the page. Its
+   place is set through the CSSOM (no style attribute). .ui-tooltip undoes the browser's default popover box and what
+   the tooltip would inherit from where it sits; .ui-tooltip--top / --bottom say on which side of its element it is
+   shown (after a flip). */
 .ui-tooltip {
-  position: relative;
-  display: inline-flex;
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  z-index: var(--ui-z-tooltip);
+  /* Large text or high zoom: the tooltip scrolls instead of leaving the window. */
+  max-height: calc(100vh - 2 * var(--ui-space-2));
+  overflow: auto;
+  width: max-content;
+  max-width: min(18rem, calc(100vw - 2 * var(--ui-space-2)));
+  background: transparent;
+  color: var(--ui-color-surface);
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-regular);
+  font-style: normal;
+  line-height: var(--ui-leading-normal);
+  letter-spacing: normal;
+  text-align: start;
+  text-transform: none;
+  white-space: normal;
+  overflow-wrap: break-word;
+  cursor: auto;
+}
+.ui-tooltip[hidden] {
+  display: none;
 }
 .ui-tooltip__bubble {
-  position: absolute;
-  left: 50%;
-  z-index: var(--ui-z-tooltip);
-  width: max-content;
-  max-width: 18rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-1);
   padding: var(--ui-space-1) var(--ui-space-2);
   border-radius: var(--ui-radius-sm);
   background: var(--ui-color-text);
   color: var(--ui-color-surface);
-  font-size: var(--ui-text-xs);
-  font-weight: var(--ui-weight-regular);
-  line-height: var(--ui-leading-normal);
   box-shadow: var(--ui-shadow-md);
-  transform: translateX(-50%);
-}
-.ui-tooltip__bubble[hidden] {
-  display: none;
 }
 .ui-tooltip--top .ui-tooltip__bubble {
-  bottom: calc(100% + var(--ui-space-1));
+  transform-origin: bottom center;
 }
 .ui-tooltip--bottom .ui-tooltip__bubble {
-  top: calc(100% + var(--ui-space-1));
+  transform-origin: top center;
+}
+.ui-tooltip__link {
+  color: inherit;
+  font-weight: var(--ui-weight-bold);
+  text-decoration: underline;
 }
 
 /* HelpTip and ErrorHelp */
