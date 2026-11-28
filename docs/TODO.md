@@ -57,6 +57,9 @@ the browser checks and the first product step in nodestro-studio (wave 3, N-16 s
   delay and keyboard focus at once, hoverable, Escape hides it and still reaches the dialog, one tooltip or help panel
   at a time, top layer above modal dialogs, placement inside the window, optional help entry with its link
   (`help="<id>"`). nodestro-studio moves its own `Tooltip`/`Hint` onto it.
+- [x] Buttons for every product (core 0.2.4, studio ST-068 step 6): `IconButton` shows its label as the shared
+  `Tooltip` instead of a native `title`; `ConfirmIconButton` (two steps for an action that cannot be undone, in six
+  languages). nodestro-studio moves its own `Button`, `IconButton` and `ConfirmIconButton` onto them.
 
 ## Repository
 

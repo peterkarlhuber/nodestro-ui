@@ -6,7 +6,8 @@ strict Content-Security-Policy (`style-src 'self'`): no inline styles, no inject
 
 | Component | What it does for accessibility |
 |---|---|
-| `Button`, `IconButton` | `type="button"` by default; busy keeps focus and sets `aria-busy`; `aria-disabled` (blocked for a reason the person can fix, described by it) keeps focus, looks disabled and ignores presses; an icon button needs a `label` |
+| `Button`, `IconButton` | `type="button"` by default; busy keeps focus and sets `aria-busy`; `aria-disabled` (blocked for a reason the person can fix, described by it) keeps focus, looks disabled and ignores presses; an icon button needs a `label` and shows it as the shared `Tooltip` (no native `title`) |
+| `ConfirmIconButton` | An icon button for an action that cannot be undone: the first press turns it into a small danger button ("Delete?", or `confirmLabel`) that takes the focus, the second calls `onConfirm`; Escape (not passed on to a dialog around it), leaving it or `CONFIRM_MS` (5 s) turn it back, and Escape and the second press give the focus back to the icon button |
 | `Field`, `TextInput`, `TextArea`, `Select` | label, hint and error linked to the control (`for`, `aria-describedby`, `aria-invalid`) |
 | `Dialog`, `ConfirmDialog` | native `<dialog>`, focus moves in, Tab is trapped, Escape closes, focus returns to the opener; the confirmation starts on Cancel |
 | `ListDetail` | a listbox with one tab stop; arrow keys, Home and End; details labelled by the selected entry |

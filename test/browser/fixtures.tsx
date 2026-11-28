@@ -1,5 +1,5 @@
 // What the browser checks render: every component in its main states.
-import { Badge, Button, Collapsible, ErrorHelp, Field, HelpProvider, HelpSearch, HelpTip, IconButton, ListDetail, Select, TextArea, TextInput, Tooltip } from "@nodestro/ui-core";
+import { Badge, Button, Collapsible, ConfirmIconButton, ErrorHelp, Field, HelpProvider, HelpSearch, HelpTip, IconButton, ListDetail, Select, TextArea, TextInput, Tooltip } from "@nodestro/ui-core";
 import { ApprovalCard, ChatMessage, RememberOptions, SourceList, ToolCallRow } from "@nodestro/ui-ai";
 
 const noop = () => {};
@@ -75,6 +75,11 @@ export function Gallery() {
       <div>
         <Button variant="primary">Save</Button> <Button>Cancel</Button> <Button variant="danger">Delete</Button> <Button variant="ghost">More</Button>{" "}
         <Button busy>Saving</Button> <Button disabled>Disabled</Button> <IconButton label="Settings" icon={<span>⚙</span>} />{" "}
+        <ConfirmIconButton label="Delete run" icon={<span>✕</span>} onConfirm={noop} />{" "}
+        {/* The armed step of a ConfirmIconButton, as its first press shows it. */}
+        <Button size="sm" variant="danger" icon={<span>✕</span>} className="ui-confirm-button" aria-label="Delete run: Delete?">
+          Delete?
+        </Button>{" "}
         <Tooltip content="Runs once">
           <Button size="sm">Run</Button>
         </Tooltip>

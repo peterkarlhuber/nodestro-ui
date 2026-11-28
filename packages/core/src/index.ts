@@ -2,6 +2,7 @@
 // "@nodestro/ui-tokens/tokens.css" (and a brand theme, if any).
 export { Badge, type Tone } from "./Badge.js";
 export { Button, IconButton, type ButtonProps, type ButtonSize, type ButtonVariant, type IconButtonProps } from "./Button.js";
+export { CONFIRM_MS, ConfirmIconButton, type ConfirmIconButtonProps } from "./Button.js";
 export { Collapsible, type CollapsibleProps } from "./Collapsible.js";
 export { ConfirmDialog, Dialog, type ConfirmDialogProps, type DialogProps } from "./Dialog.js";
 export {
