@@ -1,7 +1,7 @@
 // The sources an answer is based on, numbered by their id. Titles come from web pages: they are plain text, never
 // markup. A link opens only an http(s) address, in a new tab without a referrer.
 import { cx, isInAppPath } from "@nodestro/ui-core";
-import { useId, type ReactNode } from "react";
+import { useId, type HTMLAttributes, type LiHTMLAttributes, type ReactNode } from "react";
 import { useAiText } from "./messages.js";
 
 export interface Source {
@@ -36,7 +36,8 @@ export function domainOf(value: string | undefined): string {
   return href ? new URL(href).hostname.replace(/^www\./, "") : "";
 }
 
-export interface SourceListProps {
+/** The list; other attributes (data-*, id) go to its section. */
+export interface SourceListProps extends Omit<HTMLAttributes<HTMLElement>, "title" | "children"> {
   sources: readonly Source[];
   /** The heading; defaults to "Sources". */
   title?: ReactNode;
@@ -45,14 +46,19 @@ export interface SourceListProps {
   /** The heading level (2 to 6). */
   level?: 2 | 3 | 4 | 5 | 6;
   className?: string;
+  /** Attributes of one source's list item (for example a data-testid by its id). */
+  itemProps?: (source: Source) => LiHTMLAttributes<HTMLLIElement>;
+  /** Nothing at all, instead of "No sources.", when the list is empty. */
+  hideEmpty?: boolean;
 }
 
-export function SourceList({ sources, title, hint, level = 3, className }: SourceListProps) {
+export function SourceList({ sources, title, hint, level = 3, className, itemProps, hideEmpty = false, ...rest }: SourceListProps) {
   const t = useAiText();
   const Heading = `h${level}` as const;
   const headingId = useId();
+  if (hideEmpty && !sources.length) return null;
   return (
-    <section className={cx("ui-sources", className)} aria-labelledby={headingId}>
+    <section {...rest} className={cx("ui-sources", className)} aria-labelledby={headingId}>
       <Heading className="ui-sources__title" id={headingId}>{title ?? t("ai.sources.title")}</Heading>
       {hint ? <p className="ui-sources__hint">{hint}</p> : null}
       {sources.length ? (
@@ -62,13 +68,14 @@ export function SourceList({ sources, title, hint, level = 3, className }: Sourc
             const domain = domainOf(source.url);
             const label = source.title.trim() || source.url || source.id;
             return (
-              <li key={source.id} className="ui-sources__item">
+              <li {...itemProps?.(source)} key={source.id} className={cx("ui-sources__item", itemProps?.(source).className)}>
                 <code className="ui-sources__id">{source.id}</code>
                 <span className="ui-sources__text">
                   {href ? (
                     <a href={href} target="_blank" rel="noopener noreferrer">
-                      {label}
-                      <span className="ui-visually-hidden"> {t("ai.sources.newTab")}</span>
+                      {label}{" "}
+                      {/* The space outside the hidden text, so the link's name keeps it in every engine. */}
+                      <span className="ui-visually-hidden">{t("ai.sources.newTab")}</span>
                     </a>
                   ) : (
                     <span>{label}</span>

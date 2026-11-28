@@ -194,6 +194,49 @@
 .ui-tool-call__details {
   border-style: dashed;
 }
+.ui-tool-call__icon {
+  display: inline-flex;
+  color: var(--ui-color-text-muted);
+}
+.ui-tool-call__status {
+  color: var(--ui-color-text-muted);
+  font-size: var(--ui-text-xs);
+}
+.ui-tool-call__status--danger {
+  color: var(--ui-color-danger);
+}
+.ui-tool-call__status--warning {
+  color: var(--ui-color-warning);
+}
+/* The whole row as one disclosure: the line is the summary. */
+.ui-tool-call--disclosure > summary {
+  cursor: pointer;
+  list-style: none;
+}
+.ui-tool-call--disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+.ui-tool-call--disclosure > summary::before {
+  content: "";
+  width: 0.4em;
+  height: 0.4em;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform var(--ui-duration-fast) ease;
+}
+.ui-tool-call--disclosure[open] > summary::before {
+  transform: rotate(45deg);
+}
+.ui-tool-call--disclosure > summary:focus-visible {
+  outline: 2px solid var(--ui-color-focus);
+  outline-offset: 2px;
+}
+.ui-tool-call__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-1);
+}
 
 /* Chat message */
 .ui-chat-message {
@@ -270,6 +313,25 @@
   display: flex;
   gap: var(--ui-space-1);
 }
+/* With an avatar: the picture beside the message, the message in a column next to it. */
+.ui-chat-message--avatar {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--ui-space-2);
+}
+.ui-chat-message__avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+}
+.ui-chat-message__main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--ui-space-1);
+  min-width: 0;
+}
 
 /* Source list */
 .ui-sources {
@@ -315,4 +377,9 @@
   min-width: 0;
   flex: 1;
   overflow-wrap: anywhere;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ui-tool-call--disclosure > summary::before {
+    transition: none;
+  }
 }

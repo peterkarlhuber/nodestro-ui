@@ -2,7 +2,7 @@
 // hands the comment and the remembered choice to the product; the other components show their data safely.
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useState } from "react";
+import { useState, type LiHTMLAttributes } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { UiTextProvider } from "@nodestro/ui-core";
 import {
@@ -447,6 +447,100 @@ describe("SourceList", () => {
     render(<SourceList sources={[]} title="Web sources" level={2} />);
     expect(screen.getByRole("heading", { level: 2, name: "Web sources" })).toBeTruthy();
     expect(screen.getByText("No sources.")).toBeTruthy();
+  });
+});
+
+describe("ToolCallRow for a product's own lists", () => {
+  it("names the status in the product's words, as text, with its icon, details and attributes", () => {
+    render(
+      <ToolCallRow
+        name="mailer"
+        status="failed"
+        statusText="Error · 10:02 · 1.2 s"
+        icon={<svg data-testid="icon" />}
+        arguments={{ to: "a@example.org" }}
+        details={<p>From the MCP server mail</p>}
+        result={<pre>timeout</pre>}
+        data-testid="call"
+        defaultOpen
+      />,
+    );
+    const row = screen.getByRole("group", { name: "Tool call mailer" });
+    expect(row.getAttribute("data-testid")).toBe("call");
+    expect(within(row).getByText("Error · 10:02 · 1.2 s").className).toContain("ui-tool-call__status--danger");
+    expect(within(row).queryByText("Failed")).toBeNull();
+    expect(screen.getByTestId("icon").parentElement?.getAttribute("aria-hidden")).toBe("true");
+    const texts = [...row.querySelectorAll("pre, p")].map((element) => element.textContent);
+    expect(texts.indexOf("From the MCP server mail")).toBeGreaterThan(texts.findIndex((text) => text?.includes("a@example.org")));
+    expect(texts.indexOf("timeout")).toBeGreaterThan(texts.indexOf("From the MCP server mail"));
+  });
+
+  it("can be one disclosure: the line opens the arguments, the result and the note", async () => {
+    render(<ToolCallRow name="web_search" status="succeeded" disclosure arguments={{ q: "x" }} result="3 hits" note={<span>Approved by Anna</span>} />);
+    const row = screen.getByRole("group", { name: "Tool call web_search" });
+    expect(row.tagName).toBe("DETAILS");
+    expect((row as HTMLDetailsElement).open).toBe(false);
+    expect(row.querySelector("summary")?.textContent).toContain("web_search");
+    expect(screen.queryByRole("button", { name: "Details" })).toBeNull();
+    await userEvent.click(row.querySelector("summary")!);
+    expect((row as HTMLDetailsElement).open).toBe(true);
+    expect(within(row).getByText("3 hits")).toBeTruthy();
+    expect(within(row).getByText("Approved by Anna")).toBeTruthy();
+  });
+});
+
+describe("ChatMessage for a product's own conversation", () => {
+  it("takes an avatar, its own name and attributes, and may leave out the author line", () => {
+    render(
+      <ChatMessage role="assistant" avatar={<svg data-testid="avatar" />} label="Answer" hideHead data-testid="answer" data-status="succeeded">
+        Hello
+      </ChatMessage>,
+    );
+    const message = screen.getByRole("article", { name: "Answer" });
+    expect(message.getAttribute("data-testid")).toBe("answer");
+    expect(message.getAttribute("data-status")).toBe("succeeded");
+    expect(screen.getByTestId("avatar").parentElement?.getAttribute("aria-hidden")).toBe("true");
+    expect(message.querySelector("header")).toBeNull();
+    expect(screen.queryByText("Assistant")).toBeNull();
+    expect(within(message).getByText("Hello")).toBeTruthy();
+  });
+
+  it("says in the product's words what is being done while it is written", () => {
+    render(
+      <ChatMessage role="assistant" status="streaming" statusLine={<p role="status">Searching the knowledge base</p>}>
+        Hel
+      </ChatMessage>,
+    );
+    expect(screen.getByRole("article").getAttribute("aria-busy")).toBe("true");
+    expect(screen.getByRole("status").textContent).toBe("Searching the knowledge base");
+    expect(screen.queryByText("Writing…")).toBeNull();
+    cleanup();
+    render(
+      <ChatMessage role="assistant" status="streaming" statusLine={null}>
+        Hel
+      </ChatMessage>,
+    );
+    expect(screen.getByRole("article").getAttribute("aria-busy")).toBe("true");
+    expect(screen.queryByText("Writing…")).toBeNull();
+  });
+});
+
+describe("SourceList for a product's own pages", () => {
+  it("passes attributes to the list and to each source, and can show nothing when empty", () => {
+    const { rerender, container } = render(
+      <SourceList
+        sources={[{ id: "S1", title: "A", url: "https://example.org/a" }]}
+        aria-label="Web sources"
+        data-testid="sources"
+        itemProps={(source) => ({ "data-testid": `source-${source.id}` } as LiHTMLAttributes<HTMLLIElement>)}
+      />,
+    );
+    expect(screen.getByTestId("sources").tagName).toBe("SECTION");
+    expect(screen.getByTestId("source-S1").className).toBe("ui-sources__item");
+    // The link's name keeps the space before the hidden "(opens in a new tab)".
+    expect(screen.getByRole("link", { name: "A (opens in a new tab)" })).toBeTruthy();
+    rerender(<SourceList sources={[]} hideEmpty />);
+    expect(container.innerHTML).toBe("");
   });
 });
 
