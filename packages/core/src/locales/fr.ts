@@ -5,6 +5,7 @@ export default {
   "core.dialog.close": "Fermer",
   "core.confirm.cancel": "Annuler",
   "core.confirm.confirm": "Confirmer",
+  "core.confirm.delete": "Supprimer ?",
   "core.field.required": "obligatoire",
   "core.list.empty": "Rien à afficher.",
   "core.list.noSelection": "Sélectionnez une entrée pour voir ses détails.",

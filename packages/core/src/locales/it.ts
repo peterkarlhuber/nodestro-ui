@@ -5,6 +5,7 @@ export default {
   "core.dialog.close": "Chiudi",
   "core.confirm.cancel": "Annulla",
   "core.confirm.confirm": "Conferma",
+  "core.confirm.delete": "Eliminare?",
   "core.field.required": "obbligatorio",
   "core.list.empty": "Niente da mostrare.",
   "core.list.noSelection": "Seleziona una voce per vederne i dettagli.",

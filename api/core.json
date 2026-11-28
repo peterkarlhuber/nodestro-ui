@@ -1,6 +1,6 @@
 {
   "name": "@nodestro/ui-core",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -26,7 +26,10 @@
       "export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> { variant?: ButtonVariant; size?: ButtonSize; busy?: boolean; icon?: ReactNode; }",
       "export declare const Button: import(\"react\").ForwardRefExoticComponent<ButtonProps & import(\"react\").RefAttributes<HTMLButtonElement>>;",
       "export interface IconButtonProps extends Omit<ButtonProps, \"children\" | \"icon\"> { label: string; icon: ReactNode; }",
-      "export declare const IconButton: import(\"react\").ForwardRefExoticComponent<IconButtonProps & import(\"react\").RefAttributes<HTMLButtonElement>>;"
+      "export declare const IconButton: import(\"react\").ForwardRefExoticComponent<IconButtonProps & import(\"react\").RefAttributes<HTMLButtonElement>>;",
+      "export declare const CONFIRM_MS = 5000;",
+      "export interface ConfirmIconButtonProps extends Omit<IconButtonProps, \"onClick\"> { confirmLabel?: string; onConfirm: () => void; }",
+      "export declare function ConfirmIconButton({ icon, label, confirmLabel, onConfirm, busy, className, ...rest }: ConfirmIconButtonProps): import(\"react\").JSX.Element;"
     ],
     "Collapsible.d.ts": [
       "import { type ReactNode } from \"react\";",
@@ -118,6 +121,7 @@
     "index.d.ts": [
       "export { Badge, type Tone } from \"./Badge.js\";",
       "export { Button, IconButton, type ButtonProps, type ButtonSize, type ButtonVariant, type IconButtonProps } from \"./Button.js\";",
+      "export { CONFIRM_MS, ConfirmIconButton, type ConfirmIconButtonProps } from \"./Button.js\";",
       "export { Collapsible, type CollapsibleProps } from \"./Collapsible.js\";",
       "export { ConfirmDialog, Dialog, type ConfirmDialogProps, type DialogProps } from \"./Dialog.js\";",
       "export { Field, Select, TextArea, TextInput, type FieldProps, type SelectOption, type SelectProps, type TextAreaProps, type TextInputProps, } from \"./Field.js\";",
@@ -176,6 +180,7 @@
     "core.busy",
     "core.confirm.cancel",
     "core.confirm.confirm",
+    "core.confirm.delete",
     "core.dialog.close",
     "core.error.code",
     "core.error.help",
@@ -211,6 +216,7 @@
     "ui-collapsible__panel",
     "ui-collapsible__summary",
     "ui-collapsible__toggle",
+    "ui-confirm-button",
     "ui-dialog",
     "ui-dialog--lg",
     "ui-dialog--sm",

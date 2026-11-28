@@ -97,6 +97,10 @@
   min-width: var(--ui-control-height);
   padding: 0;
 }
+/* The armed step of a ConfirmIconButton: a small danger button whose text never wraps. */
+.ui-confirm-button {
+  white-space: nowrap;
+}
 
 /* Spinner */
 .ui-spinner {

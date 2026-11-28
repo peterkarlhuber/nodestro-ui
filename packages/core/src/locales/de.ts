@@ -5,6 +5,7 @@ export default {
   "core.dialog.close": "Schließen",
   "core.confirm.cancel": "Abbrechen",
   "core.confirm.confirm": "Bestätigen",
+  "core.confirm.delete": "Löschen?",
   "core.field.required": "Pflichtfeld",
   "core.list.empty": "Nichts anzuzeigen.",
   "core.list.noSelection": "Wähle einen Eintrag, um seine Details zu sehen.",
