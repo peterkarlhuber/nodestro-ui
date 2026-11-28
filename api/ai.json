@@ -1,6 +1,6 @@
 {
   "name": "@nodestro/ui-ai",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -26,11 +26,11 @@
       "export declare function ApprovalCard({ kind, title, context, help, instructions, badges, arguments: args, children, secondsLeft, allowComment, requireCommentOnReject, rememberAgent, rejectOnly, rejectHint, error, pending, onApprove, onReject, className, label, extra, remember: rememberValue, onRememberChange, rememberIncomplete, confirmReject, readOnly, actionsHelp, footer, ...rest }: ApprovalCardProps): import(\"react\").JSX.Element;"
     ],
     "ChatMessage.d.ts": [
-      "import type { ReactNode } from \"react\";",
+      "import type { HTMLAttributes, ReactNode } from \"react\";",
       "export type ChatRole = \"user\" | \"assistant\" | \"system\" | \"tool\";",
       "export interface ChatAttachment { name: string; href?: string; size?: string; }",
-      "export interface ChatMessageProps { role: ChatRole; author?: string; time?: { iso: string; text: string; }; status?: \"complete\" | \"streaming\" | \"error\"; attachments?: readonly ChatAttachment[]; actions?: ReactNode; children?: ReactNode; className?: string; }",
-      "export declare function ChatMessage({ role, author, time, status, attachments, actions, children, className }: ChatMessageProps): import(\"react\").JSX.Element;"
+      "export interface ChatMessageProps extends Omit<HTMLAttributes<HTMLElement>, \"title\" | \"children\" | \"role\"> { role: ChatRole; author?: string; time?: { iso: string; text: string; }; status?: \"complete\" | \"streaming\" | \"error\"; attachments?: readonly ChatAttachment[]; actions?: ReactNode; children?: ReactNode; className?: string; label?: string; avatar?: ReactNode; hideHead?: boolean; statusLine?: ReactNode; }",
+      "export declare function ChatMessage({ role, author, time, status, attachments, actions, children, className, label, avatar, hideHead, statusLine, ...rest }: ChatMessageProps): import(\"react\").JSX.Element;"
     ],
     "RememberOptions.d.ts": [
       "import type { FieldsetHTMLAttributes, ReactNode } from \"react\";",
@@ -45,20 +45,20 @@
       "export declare function RememberOptions({ value, onChange, agent, rejectOnly, disabled, className, children, ...rest }: RememberOptionsProps): import(\"react\").JSX.Element;"
     ],
     "SourceList.d.ts": [
-      "import { type ReactNode } from \"react\";",
+      "import { type HTMLAttributes, type LiHTMLAttributes, type ReactNode } from \"react\";",
       "export interface Source { id: string; title: string; url?: string; meta?: ReactNode; badge?: ReactNode; }",
       "export declare function safeHref(value: string | undefined, allowPaths?: boolean): string | null;",
       "export declare function domainOf(value: string | undefined): string;",
-      "export interface SourceListProps { sources: readonly Source[]; title?: ReactNode; hint?: ReactNode; level?: 2 | 3 | 4 | 5 | 6; className?: string; }",
-      "export declare function SourceList({ sources, title, hint, level, className }: SourceListProps): import(\"react\").JSX.Element;"
+      "export interface SourceListProps extends Omit<HTMLAttributes<HTMLElement>, \"title\" | \"children\"> { sources: readonly Source[]; title?: ReactNode; hint?: ReactNode; level?: 2 | 3 | 4 | 5 | 6; className?: string; itemProps?: (source: Source) => LiHTMLAttributes<HTMLLIElement>; hideEmpty?: boolean; }",
+      "export declare function SourceList({ sources, title, hint, level, className, itemProps, hideEmpty, ...rest }: SourceListProps): import(\"react\").JSX.Element | null;"
     ],
     "ToolCallRow.d.ts": [
       "import { type Tone } from \"@nodestro/ui-core\";",
-      "import type { ReactNode } from \"react\";",
+      "import { type HTMLAttributes, type ReactNode } from \"react\";",
       "export type ToolCallStatus = \"pending\" | \"running\" | \"awaiting_approval\" | \"succeeded\" | \"failed\" | \"denied\" | \"cancelled\";",
       "export declare const TOOL_CALL_TONE: Readonly<Record<ToolCallStatus, Tone>>;",
-      "export interface ToolCallRowProps { name: string; status: ToolCallStatus; duration?: string; summary?: ReactNode; arguments?: unknown; result?: ReactNode; note?: ReactNode; defaultOpen?: boolean; className?: string; }",
-      "export declare function ToolCallRow({ name, status, duration, summary, arguments: args, result, note, defaultOpen, className }: ToolCallRowProps): import(\"react\").JSX.Element;"
+      "export interface ToolCallRowProps extends Omit<HTMLAttributes<HTMLElement>, \"title\" | \"children\" | \"role\"> { name: string; status: ToolCallStatus; duration?: string; summary?: ReactNode; arguments?: unknown; result?: ReactNode; note?: ReactNode; defaultOpen?: boolean; className?: string; icon?: ReactNode; statusText?: ReactNode; details?: ReactNode; disclosure?: boolean; }",
+      "export declare function ToolCallRow({ name, status, duration, summary, arguments: args, result, note, defaultOpen, className, icon, statusText, details, disclosure, ...rest }: ToolCallRowProps): import(\"react\").JSX.Element;"
     ],
     "icons.d.ts": [
       "export declare function HandIcon(): import(\"react\").JSX.Element;",
@@ -158,6 +158,7 @@
     "ui-approval__review",
     "ui-approval__title",
     "ui-chat-message",
+    "ui-chat-message--avatar",
     "ui-chat-message--error",
     "ui-chat-message--system",
     "ui-chat-message--tool",
@@ -166,7 +167,9 @@
     "ui-chat-message__attachment",
     "ui-chat-message__attachments",
     "ui-chat-message__author",
+    "ui-chat-message__avatar",
     "ui-chat-message__head",
+    "ui-chat-message__main",
     "ui-chat-message__size",
     "ui-chat-message__status",
     "ui-chat-message__status--error",
@@ -187,13 +190,19 @@
     "ui-sources__text",
     "ui-sources__title",
     "ui-tool-call",
+    "ui-tool-call--disclosure",
+    "ui-tool-call__body",
     "ui-tool-call__code",
     "ui-tool-call__details",
+    "ui-tool-call__icon",
     "ui-tool-call__label",
     "ui-tool-call__line",
     "ui-tool-call__meta",
     "ui-tool-call__name",
     "ui-tool-call__note",
+    "ui-tool-call__status",
+    "ui-tool-call__status--danger",
+    "ui-tool-call__status--warning",
     "ui-tool-call__summary"
   ]
 }

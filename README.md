@@ -9,7 +9,7 @@ tarball that products vendor and check by SHA-256.
 | `@nodestro/ui-tokens` | `packages/tokens` | 0.1.0: design tokens (`--ui-*` CSS custom properties and JSON), light and dark |
 | `@nodestro/ui-themes` | `packages/themes` | 0.1.0: brand themes (token overrides): `neutral`, `nodestro`, `example` |
 | `@nodestro/ui-core` | `packages/core` | 0.2.3: buttons, fields, dialogs, list and detail, collapsible sections, tooltip, context help, offline help search |
-| `@nodestro/ui-ai` | `packages/ai` | 0.4.0: approval card with remembered decisions and confirmed rejection, tool call row, chat message, source list |
+| `@nodestro/ui-ai` | `packages/ai` | 0.5.0: approval card with remembered decisions and confirmed rejection, tool call row, chat message, source list |
 | `@nodestro/ui-help` | `packages/help` | 0.1.0: help entries for the platform API's error codes in six languages (texts only) |
 
 The component packages take React 19 as a peer dependency and have no other runtime dependency; help takes only

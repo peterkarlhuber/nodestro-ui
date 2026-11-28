@@ -43,5 +43,13 @@ decisions, `footer` shows what comes under them (for example earlier decisions) 
 comment, remember options and decisions (someone else decides, or it was decided elsewhere). Approving may carry the
 product's own input (an `extra` field): the button stays enabled and the product checks the input in `onApprove`.
 
+Since 0.5.0 the tool call row, the chat message and the source list fit a product's own lists too; other attributes
+(`data-*`, `id`, `aria-label`) go to their root element. `ToolCallRow`: `statusText` names the status in the
+product's words (text, toned like the badge it replaces), `icon` comes before the name, `details` sits between the
+arguments and the result, and `disclosure` makes the whole row one native disclosure instead of a row with a
+"Details" section. `ChatMessage`: `avatar` (decorative) beside the message, `hideHead` without the visible author
+line (the message keeps its name), `label` for its accessible name and `statusLine` for what is being done while it
+is written. `SourceList`: `itemProps` for each source's list item and `hideEmpty` for nothing at all when empty.
+
 Styles: `@import '@nodestro/ui-ai/styles.css';` after the core styles. Texts: keys `ai.*` in six languages
 (`aiMessages`); a product can answer any key itself through `UiTextProvider` from `@nodestro/ui-core`.
