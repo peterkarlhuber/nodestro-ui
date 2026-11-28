@@ -15,9 +15,9 @@
       "version": "0.2.2",
       "directory": "packages/core",
       "file": "nodestro-ui-core-0.2.2.tgz",
-      "size": 146465,
-      "sha256": "025b4b47b7540c0b128f97589c836cf6562ea4328bc04a3bf372632bdc22fc90",
-      "integrity": "sha512-WE7iPTvTCyvpxFiULWCA6mGFs1ZQeN3MyoyhJFmLjcvVgah0TG8H3l9x+NGPlrFhQNKwor7CfihPhJuLvJH45Q=="
+      "size": 148513,
+      "sha256": "c22fb528d3ef9f6442ab56f52e4bd2936ce77ab93b5aa5a0aabad3b6fd058b10",
+      "integrity": "sha512-5e2lxqMoP1TTqW962OPibgk+zW1rL+YmpN1g7ziOLqqKFSAlpkkx1wbp5WcZNUsplADT1dKh00prxOkcnJISvQ=="
     },
     {
       "name": "@nodestro/ui-help",
