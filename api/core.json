@@ -1,6 +1,6 @@
 {
   "name": "@nodestro/ui-core",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -129,6 +129,15 @@
       "export { Spinner } from \"./Spinner.js\";",
       "export { Tooltip, type TooltipProps } from \"./Tooltip.js\";",
       "export { cx } from \"./util.js\";"
+    ],
+    "layer.d.ts": [
+      "export declare const HAS_POPOVER: boolean;",
+      "export declare function raiseLayer(panel: HTMLElement): boolean;",
+      "export declare function lowerLayer(panel: HTMLElement): void;",
+      "export interface Placement { top: number; left: number; below: boolean; }",
+      "export declare function placeLayer(rect: { top: number; bottom: number; left: number; width: number; }, size: { width: number; height: number; }, view: { width: number; height: number; }): Placement;",
+      "export declare function positionLayer(panel: HTMLElement, anchor: HTMLElement): Placement;",
+      "export declare function focusVisible(element: Element): boolean;"
     ],
     "messages.d.ts": [
       "import type { Catalog } from \"./i18n.js\";",

@@ -1,6 +1,7 @@
 /* @nodestro/ui-core styles. Every value is a --ui- token (from @nodestro/ui-tokens, optionally a brand theme), so a
    brand changes the look without touching the components. Class names start with ui-. No inline styles are needed
-   by any component (strict CSP: style-src 'self'). */
+   by any component (strict CSP: style-src 'self'); the floating help panel is placed through the CSSOM, which that
+   policy allows. */
 
 .ui-visually-hidden {
   position: absolute;
@@ -404,16 +405,24 @@
   color: var(--ui-color-text);
   background: var(--ui-color-surface-hover);
 }
+/* The panel follows its button in the DOM and is shown in the top layer as a manual popover (HelpTip.tsx, layer.ts),
+   so it is painted above modal dialogs; without the Popover API it is a fixed element above the page. Its place is
+   set through the CSSOM (no style attribute). These rules undo the browser's default popover box (centered, inset 0,
+   own colors) and what the panel would inherit from where it sits (a heading, a label, a table cell). */
 .ui-helptip__panel {
-  position: absolute;
-  top: calc(100% + var(--ui-space-1));
-  right: 0;
-  z-index: var(--ui-z-overlay);
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  z-index: var(--ui-z-tooltip);
+  /* Large text or high zoom: the panel scrolls instead of leaving the window. */
+  max-height: calc(100vh - 2 * var(--ui-space-2));
+  overflow: auto;
+  overflow-wrap: break-word;
   display: flex;
   flex-direction: column;
   gap: var(--ui-space-1);
   width: max-content;
-  max-width: 20rem;
+  max-width: min(20rem, calc(100vw - 2 * var(--ui-space-2)));
   padding: var(--ui-space-3);
   border: 1px solid var(--ui-color-border);
   border-radius: var(--ui-radius-md);
@@ -421,6 +430,13 @@
   color: var(--ui-color-text);
   font-size: var(--ui-text-sm);
   font-weight: var(--ui-weight-regular);
+  font-style: normal;
+  line-height: var(--ui-leading-normal);
+  letter-spacing: normal;
+  text-align: start;
+  text-transform: none;
+  white-space: normal;
+  cursor: auto;
   box-shadow: var(--ui-shadow-md);
 }
 .ui-helptip__panel[hidden] {
