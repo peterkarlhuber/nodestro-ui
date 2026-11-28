@@ -2,8 +2,14 @@
 // to review, an optional comment, optional "remember this decision" options, the time left, and approve or reject.
 // Nothing is decided automatically and nothing is fetched here: the product passes the data and handles the two
 // callbacks (with the comment and the remembered choice). The product's own texts can replace any key.
+//
+// A decision that is blocked for a reason the person can fix (a missing comment) stays focusable and is described by
+// the reason next to it (aria-disabled), so keyboard and screen reader users learn why; a decision that cannot be
+// taken at all (sending, time up, an incomplete rule) is disabled. The product may name the card (`label`), add
+// fields after the comment (`extra`), control the remembered choice and add to its completeness
+// (`rememberIncomplete`, for example while the asking agent is not known yet); other attributes go to the card.
 import { Button, Field, TextArea, cx } from "@nodestro/ui-core";
-import { useId, useState, type ReactNode } from "react";
+import { useId, useState, type HTMLAttributes, type ReactNode } from "react";
 import { CheckIcon, CoinIcon, CrossIcon, HandIcon, ShieldIcon } from "./icons.js";
 import { useAiText } from "./messages.js";
 import { DEFAULT_REMEMBER, RememberOptions, rememberComplete, type RejectOnlyReason, type RememberChoice } from "./RememberOptions.js";
@@ -22,7 +28,8 @@ export interface ApprovalDecision {
   remember: RememberChoice | null;
 }
 
-export interface ApprovalCardProps {
+/** The card; other attributes (data-*, id) go to its root element. */
+export interface ApprovalCardProps extends Omit<HTMLAttributes<HTMLElement>, "title" | "children" | "onChange"> {
   kind?: ApprovalKind;
   /** What waits, for example the step's or the tool's name. Also names the card for assistive technology. */
   title: string;
@@ -57,6 +64,15 @@ export interface ApprovalCardProps {
   onApprove: (decision: ApprovalDecision) => void;
   onReject: (decision: ApprovalDecision) => void;
   className?: string;
+  /** The card's accessible name; defaults to "Approval: <title>" (a list of cards may need where each one waits). */
+  label?: string;
+  /** More fields after the comment, for example a note to the agent. */
+  extra?: ReactNode;
+  /** The remembered choice, controlled by the product (with onRememberChange); uncontrolled without it. */
+  remember?: RememberChoice;
+  onRememberChange?: (value: RememberChoice) => void;
+  /** The product's own reason that a chosen rule is not complete yet (for example the asking agent is not known). */
+  rememberIncomplete?: boolean;
 }
 
 const KIND_ICON = { step: HandIcon, tool: ShieldIcon, budget: CoinIcon } as const;
@@ -81,16 +97,27 @@ export function ApprovalCard({
   onApprove,
   onReject,
   className,
+  label,
+  extra,
+  remember: rememberValue,
+  onRememberChange,
+  rememberIncomplete = false,
+  ...rest
 }: ApprovalCardProps) {
   const t = useAiText();
   const base = useId();
   const [comment, setComment] = useState("");
-  const [remember, setRemember] = useState<RememberChoice>(DEFAULT_REMEMBER);
+  const [ownRemember, setOwnRemember] = useState<RememberChoice>(DEFAULT_REMEMBER);
+  const remember = rememberValue ?? ownRemember;
+  const setRemember = (value: RememberChoice) => {
+    if (rememberValue === undefined) setOwnRemember(value);
+    onRememberChange?.(value);
+  };
   const Icon = KIND_ICON[kind];
   const expired = secondsLeft !== null && secondsLeft <= 0;
   const commentMissing = allowComment && requireCommentOnReject && !comment.trim();
   const ruleChosen = rememberAgent !== null && remember.duration !== "call";
-  const incomplete = ruleChosen && !rememberComplete(remember);
+  const incomplete = ruleChosen && (!rememberComplete(remember) || rememberIncomplete);
   const busy = pending !== null;
   const reasonId = `${base}-reason`;
   const reason = incomplete ? t("ai.approval.incomplete") : commentMissing ? t("ai.approval.commentFirst") : null;
@@ -100,7 +127,7 @@ export function ApprovalCard({
   });
   const hasReview = Boolean(children) || args !== undefined;
   return (
-    <article className={cx("ui-approval", `ui-approval--${kind}`, className)} aria-label={t("ai.approval.label", { name: title })}>
+    <article {...rest} className={cx("ui-approval", `ui-approval--${kind}`, className)} aria-label={label ?? t("ai.approval.label", { name: title })}>
       <header className="ui-approval__head">
         <span className="ui-approval__icon">
           <Icon />
@@ -140,7 +167,10 @@ export function ApprovalCard({
           <TextArea rows={3} maxLength={4000} value={comment} onChange={(event) => setComment(event.target.value)} />
         </Field>
       ) : null}
-      {rememberAgent !== null ? <RememberOptions value={remember} onChange={setRemember} agent={rememberAgent} rejectOnly={rejectOnly} /> : null}
+      {extra}
+      {rememberAgent !== null ? (
+        <RememberOptions value={remember} onChange={setRemember} agent={rememberAgent} rejectOnly={rejectOnly} />
+      ) : null}
       {rejectHint ? <p className="ui-approval__muted">{rejectHint}</p> : null}
       {error ? (
         <div className="ui-approval__error" role="alert">
@@ -162,9 +192,13 @@ export function ApprovalCard({
           variant="danger"
           icon={<CrossIcon />}
           busy={pending === "reject"}
-          disabled={busy || expired || commentMissing || incomplete}
+          disabled={busy || expired || incomplete}
+          // Blocked until there is a comment, but focusable: the reason next to it says what is missing.
+          aria-disabled={commentMissing && !(busy || expired || incomplete) ? true : undefined}
           aria-describedby={reason ? reasonId : undefined}
-          onClick={() => onReject(decision(false))}
+          onClick={() => {
+            if (!commentMissing) onReject(decision(false));
+          }}
         >
           {t("ai.approval.reject")}
         </Button>

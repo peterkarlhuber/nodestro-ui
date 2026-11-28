@@ -3,21 +3,21 @@
   "packages": [
     {
       "name": "@nodestro/ui-ai",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "directory": "packages/ai",
-      "file": "nodestro-ui-ai-0.2.0.tgz",
-      "size": 91164,
-      "sha256": "0dd89ebe6b33dfbc88bd1fed1677fcc37d9c7feb0c24fe5519d282a3fdbe5284",
-      "integrity": "sha512-TAN1n6hxZveQGLRZgiNXOzxk0WvZS5dAk6ywPTgIH9S2T6iGN20102Dwpl57XpWhUXQtP9zNNG7xzKY6OJMa+w=="
+      "file": "nodestro-ui-ai-0.3.0.tgz",
+      "size": 94236,
+      "sha256": "83df6a199ed814e4a9923b6095a78ce00dc7d974897a7bf100be132fab60f921",
+      "integrity": "sha512-c3+N4j6Tr4HyKiQUEI3AdRe3DZLQpzfteq0YTj/x1l5RFkqqLB8I5/E+SApC3K3tm/GYmPHBKepTTVnBOPr7WA=="
     },
     {
       "name": "@nodestro/ui-core",
-      "version": "0.2.2",
+      "version": "0.2.3",
       "directory": "packages/core",
-      "file": "nodestro-ui-core-0.2.2.tgz",
-      "size": 148513,
-      "sha256": "c22fb528d3ef9f6442ab56f52e4bd2936ce77ab93b5aa5a0aabad3b6fd058b10",
-      "integrity": "sha512-5e2lxqMoP1TTqW962OPibgk+zW1rL+YmpN1g7ziOLqqKFSAlpkkx1wbp5WcZNUsplADT1dKh00prxOkcnJISvQ=="
+      "file": "nodestro-ui-core-0.2.3.tgz",
+      "size": 149025,
+      "sha256": "61dcff19e913d0477b3a0edae3f887ae8f857081e5fb3a85e6eb520387b15e3d",
+      "integrity": "sha512-6VHNoN8rnJUhcmUOUz/52qfcnUMLpYp/Z7k2wmeTFmYqsWBXozwurFp0Z1auWtBHLiO2JdghsgzUnduWwlMohg=="
     },
     {
       "name": "@nodestro/ui-help",

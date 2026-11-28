@@ -1,6 +1,6 @@
 {
   "name": "@nodestro/ui-core",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "private": true,
   "description": "Brand-neutral, accessible React building blocks: buttons, fields, dialogs, list and detail, collapsible sections, tooltips, context help and offline help search.",
   "license": "SEE LICENSE IN LICENSE",

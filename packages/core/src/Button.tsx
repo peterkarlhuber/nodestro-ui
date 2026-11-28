@@ -1,5 +1,7 @@
 // Buttons. A busy button keeps its place in the tab order and says so to assistive technology (aria-busy); a
-// disabled one is really disabled. An icon-only button always has an accessible name.
+// disabled one is really disabled. A button blocked for a reason the person can fix (aria-disabled, described by
+// that reason) stays focusable, looks disabled and does nothing when pressed. An icon-only button always has an
+// accessible name.
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
 import { Spinner } from "./Spinner.js";
 import { cx, useCoreText } from "./util.js";
@@ -26,7 +28,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       type={type}
       className={cx("ui-button", `ui-button--${variant}`, size === "sm" && "ui-button--sm", className)}
       aria-busy={busy || undefined}
-      onClick={busy ? (event) => event.preventDefault() : onClick}
+      onClick={busy || rest["aria-disabled"] === true || rest["aria-disabled"] === "true" ? (event) => event.preventDefault() : onClick}
       {...rest}
     >
       {busy ? <Spinner /> : icon ? <span className="ui-button__icon" aria-hidden="true">{icon}</span> : null}

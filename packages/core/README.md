@@ -6,7 +6,7 @@ strict Content-Security-Policy (`style-src 'self'`): no inline styles, no inject
 
 | Component | What it does for accessibility |
 |---|---|
-| `Button`, `IconButton` | `type="button"` by default; busy keeps focus and sets `aria-busy`; an icon button needs a `label` |
+| `Button`, `IconButton` | `type="button"` by default; busy keeps focus and sets `aria-busy`; `aria-disabled` (blocked for a reason the person can fix, described by it) keeps focus, looks disabled and ignores presses; an icon button needs a `label` |
 | `Field`, `TextInput`, `TextArea`, `Select` | label, hint and error linked to the control (`for`, `aria-describedby`, `aria-invalid`) |
 | `Dialog`, `ConfirmDialog` | native `<dialog>`, focus moves in, Tab is trapped, Escape closes, focus returns to the opener; the confirmation starts on Cancel |
 | `ListDetail` | a listbox with one tab stop; arrow keys, Home and End; details labelled by the selected entry |
