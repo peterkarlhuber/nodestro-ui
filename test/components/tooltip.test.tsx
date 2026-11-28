@@ -318,4 +318,17 @@ describe("Tooltip placement", () => {
     // Taller than the window: kept inside it (the tooltip scrolls, styles.css).
     expect(placeLayerAt(middle, { width: 100, height: 500 }, view, "top").top).toBe(8);
   });
+
+  // The cases of nodestro-studio's own tooltip (its Tooltip.test.tsx before ST-068 step 6), on the shared placement.
+  it("the studio's cases: above and centred, flipped at the top edge, shifted from the side edges", () => {
+    const studioView = { width: 1000, height: 800 };
+    const studioSize = { width: 300, height: 100 };
+    expect(placeLayerAt({ top: 400, bottom: 420, left: 490, width: 20 }, studioSize, studioView, "top")).toEqual({ top: 292, left: 350, below: false });
+    const flipped = placeLayerAt({ top: 20, bottom: 40, left: 990, width: 10 }, studioSize, studioView, "top");
+    expect(flipped.below).toBe(true);
+    expect(flipped.top).toBe(48);
+    expect(flipped.left).toBe(1000 - 300 - 8);
+    expect(placeLayerAt({ top: 400, bottom: 420, left: 0, width: 10 }, studioSize, studioView, "top").left).toBe(8);
+    expect(placeLayerAt({ top: 300, bottom: 320, left: 400, width: 20 }, { width: 300, height: 900 }, studioView, "top").top).toBeGreaterThanOrEqual(8);
+  });
 });
