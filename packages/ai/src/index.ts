@@ -1,6 +1,6 @@
 // @nodestro/ui-ai: components for AI products. Props and i18n keys only: no data fetching, no product dependency.
 // Styles: import "@nodestro/ui-ai/styles.css" after "@nodestro/ui-core/styles.css".
-export { ApprovalCard, formatCountdown, type ApprovalCardProps, type ApprovalDecision, type ApprovalKind } from "./ApprovalCard.js";
+export { ApprovalCard, CONFIRM_REJECT_MS, formatCountdown, type ApprovalCardProps, type ApprovalDecision, type ApprovalKind } from "./ApprovalCard.js";
 export { ChatMessage, type ChatAttachment, type ChatMessageProps, type ChatRole } from "./ChatMessage.js";
 export { aiMessages, useAiText, type AiKey } from "./messages.js";
 export {

@@ -1,6 +1,6 @@
 {
   "name": "@nodestro/ui-ai",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -19,10 +19,11 @@
       "import { type HTMLAttributes, type ReactNode } from \"react\";",
       "import { type RejectOnlyReason, type RememberChoice } from \"./RememberOptions.js\";",
       "export type ApprovalKind = \"step\" | \"tool\" | \"budget\";",
+      "export declare const CONFIRM_REJECT_MS = 5000;",
       "export declare function formatCountdown(seconds: number): string;",
       "export interface ApprovalDecision { comment: string; remember: RememberChoice | null; }",
-      "export interface ApprovalCardProps extends Omit<HTMLAttributes<HTMLElement>, \"title\" | \"children\" | \"onChange\"> { kind?: ApprovalKind; title: string; context?: ReactNode; help?: ReactNode; instructions?: ReactNode; badges?: ReactNode; arguments?: unknown; children?: ReactNode; secondsLeft?: number | null; allowComment?: boolean; requireCommentOnReject?: boolean; rememberAgent?: string | null; rejectOnly?: RejectOnlyReason | null; rejectHint?: ReactNode; error?: ReactNode; pending?: \"approve\" | \"reject\" | null; onApprove: (decision: ApprovalDecision) => void; onReject: (decision: ApprovalDecision) => void; className?: string; label?: string; extra?: ReactNode; remember?: RememberChoice; onRememberChange?: (value: RememberChoice) => void; rememberIncomplete?: boolean; }",
-      "export declare function ApprovalCard({ kind, title, context, help, instructions, badges, arguments: args, children, secondsLeft, allowComment, requireCommentOnReject, rememberAgent, rejectOnly, rejectHint, error, pending, onApprove, onReject, className, label, extra, remember: rememberValue, onRememberChange, rememberIncomplete, ...rest }: ApprovalCardProps): import(\"react\").JSX.Element;"
+      "export interface ApprovalCardProps extends Omit<HTMLAttributes<HTMLElement>, \"title\" | \"children\" | \"onChange\"> { kind?: ApprovalKind; title: string; context?: ReactNode; help?: ReactNode; instructions?: ReactNode; badges?: ReactNode; arguments?: unknown; children?: ReactNode; secondsLeft?: number | null; allowComment?: boolean; requireCommentOnReject?: boolean; rememberAgent?: string | null; rejectOnly?: RejectOnlyReason | null; rejectHint?: ReactNode; error?: ReactNode; pending?: \"approve\" | \"reject\" | null; onApprove: (decision: ApprovalDecision) => void; onReject: (decision: ApprovalDecision) => void; className?: string; label?: string; extra?: ReactNode; remember?: RememberChoice; onRememberChange?: (value: RememberChoice) => void; rememberIncomplete?: boolean; confirmReject?: boolean; readOnly?: boolean; actionsHelp?: ReactNode; footer?: ReactNode; }",
+      "export declare function ApprovalCard({ kind, title, context, help, instructions, badges, arguments: args, children, secondsLeft, allowComment, requireCommentOnReject, rememberAgent, rejectOnly, rejectHint, error, pending, onApprove, onReject, className, label, extra, remember: rememberValue, onRememberChange, rememberIncomplete, confirmReject, readOnly, actionsHelp, footer, ...rest }: ApprovalCardProps): import(\"react\").JSX.Element;"
     ],
     "ChatMessage.d.ts": [
       "import type { ReactNode } from \"react\";",
@@ -67,7 +68,7 @@
       "export declare function CrossIcon(): import(\"react\").JSX.Element;"
     ],
     "index.d.ts": [
-      "export { ApprovalCard, formatCountdown, type ApprovalCardProps, type ApprovalDecision, type ApprovalKind } from \"./ApprovalCard.js\";",
+      "export { ApprovalCard, CONFIRM_REJECT_MS, formatCountdown, type ApprovalCardProps, type ApprovalDecision, type ApprovalKind } from \"./ApprovalCard.js\";",
       "export { ChatMessage, type ChatAttachment, type ChatMessageProps, type ChatRole } from \"./ChatMessage.js\";",
       "export { aiMessages, useAiText, type AiKey } from \"./messages.js\";",
       "export { DEFAULT_REMEMBER, REMEMBER_DURATIONS, RememberOptions, rememberComplete, type RejectOnlyReason, type RememberChoice, type RememberDuration, type RememberOptionsProps, type RememberScope, } from \"./RememberOptions.js\";",
@@ -98,6 +99,7 @@
     "ai.approval.label",
     "ai.approval.nothingToReview",
     "ai.approval.reject",
+    "ai.approval.rejectConfirm",
     "ai.approval.timeLeft",
     "ai.chat.attachments",
     "ai.chat.error",

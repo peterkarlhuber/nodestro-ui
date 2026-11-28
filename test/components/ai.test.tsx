@@ -1,12 +1,13 @@
 // @nodestro/ui-ai behaviour: the approval card decides nothing by itself, explains why a decision is blocked, and
 // hands the comment and the remembered choice to the product; the other components show their data safely.
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { UiTextProvider } from "@nodestro/ui-core";
 import {
   ApprovalCard,
+  CONFIRM_REJECT_MS,
   ChatMessage,
   DEFAULT_REMEMBER,
   RememberOptions,
@@ -26,12 +27,23 @@ function card(props: Partial<ApprovalCardProps> = {}) {
   const onApprove = vi.fn();
   const onReject = vi.fn();
   render(<ApprovalCard title="mailer" onApprove={onApprove} onReject={onReject} {...props} />);
-  return { onApprove, onReject, approve: () => screen.getByRole("button", { name: "Approve" }), reject: () => screen.getByRole("button", { name: "Reject" }) };
+  return {
+    onApprove,
+    onReject,
+    approve: () => screen.getByRole("button", { name: "Approve" }),
+    reject: () => screen.getByRole("button", { name: "Reject" }),
+  };
 }
 
 describe("ApprovalCard", () => {
   it("is an article named after what waits, with the kind, context, instructions and what to review", () => {
-    card({ kind: "step", title: "Check the offer", context: "Offers · waiting since 10:00", instructions: "Look at the prices.", children: <p>Result</p> });
+    card({
+      kind: "step",
+      title: "Check the offer",
+      context: "Offers · waiting since 10:00",
+      instructions: "Look at the prices.",
+      children: <p>Result</p>,
+    });
     const article = screen.getByRole("article", { name: "Approval: Check the offer" });
     expect(article.textContent).toContain("A step waits for your approval");
     expect(article.textContent).toContain("Offers · waiting since 10:00");
@@ -108,18 +120,28 @@ describe("ApprovalCard", () => {
     expect(document.getElementById(approve().getAttribute("aria-describedby") ?? "")?.textContent).toBe("Choose an end date first.");
     await userEvent.type(screen.getByLabelText("Ends on"), "2030-01-31T12:00");
     await userEvent.click(reject());
-    expect(onReject).toHaveBeenLastCalledWith({ comment: "", remember: { duration: "until", scope: "all", until: "2030-01-31T12:00" } });
+    expect(onReject).toHaveBeenLastCalledWith({
+      comment: "",
+      remember: { duration: "until", scope: "all", until: "2030-01-31T12:00" },
+    });
   });
 
   it("never remembers approving what may only be rejected, but remembers rejecting it", async () => {
-    const { onApprove, onReject, approve, reject } = card({ kind: "tool", rememberAgent: "wf_1/writer", rejectOnly: "destructive" });
+    const { onApprove, onReject, approve, reject } = card({
+      kind: "tool",
+      rememberAgent: "wf_1/writer",
+      rejectOnly: "destructive",
+    });
     await userEvent.selectOptions(screen.getByLabelText("How long"), "until_revoked");
     expect(screen.getByText(/only rejecting can be remembered/)).toBeTruthy();
     expect(screen.getByRole("option", { name: "This agent (wf_1/writer)" })).toBeTruthy();
     await userEvent.click(approve());
     expect(onApprove).toHaveBeenLastCalledWith({ comment: "", remember: null });
     await userEvent.click(reject());
-    expect(onReject).toHaveBeenLastCalledWith({ comment: "", remember: { duration: "until_revoked", scope: "agent", until: "" } });
+    expect(onReject).toHaveBeenLastCalledWith({
+      comment: "",
+      remember: { duration: "until_revoked", scope: "agent", until: "" },
+    });
     // An incomplete rule blocks only rejecting then: approving remembers nothing anyway.
     await userEvent.selectOptions(screen.getByLabelText("How long"), "until");
     expect((approve() as HTMLButtonElement).disabled).toBe(false);
@@ -152,7 +174,12 @@ describe("ApprovalCard", () => {
 
 describe("ApprovalCard for a product's own cards", () => {
   it("takes the product's name and attributes", () => {
-    card({ title: "Freigabe", label: "Approval: Freigabe · Offers · 10:00", "data-testid": "step-approval", id: "card-1" });
+    card({
+      title: "Freigabe",
+      label: "Approval: Freigabe · Offers · 10:00",
+      "data-testid": "step-approval",
+      id: "card-1",
+    });
     const article = screen.getByRole("article", { name: "Approval: Freigabe · Offers · 10:00" });
     expect(article.getAttribute("data-testid")).toBe("step-approval");
     expect(article.id).toBe("card-1");
@@ -191,7 +218,102 @@ describe("ApprovalCard for a product's own cards", () => {
     expect((screen.getByRole("button", { name: "Reject" }) as HTMLButtonElement).disabled).toBe(true);
     rerender(<Controlled known />);
     await userEvent.click(screen.getByRole("button", { name: "Approve" }));
-    expect(onApprove).toHaveBeenLastCalledWith({ comment: "", remember: { duration: "until_revoked", scope: "agent", until: "" } });
+    expect(onApprove).toHaveBeenLastCalledWith({
+      comment: "",
+      remember: { duration: "until_revoked", scope: "agent", until: "" },
+    });
+  });
+});
+
+describe("ApprovalCard with a rejection that cannot be undone", () => {
+  afterEach(() => vi.useRealTimers());
+
+  it("rejects only on a second press, on the button that takes focus", async () => {
+    const { onReject, reject } = card({ kind: "budget", confirmReject: true });
+    await userEvent.click(reject());
+    expect(onReject).not.toHaveBeenCalled();
+    const confirm = screen.getByRole("button", { name: "Really reject?" });
+    expect(document.activeElement).toBe(confirm);
+    await userEvent.click(confirm);
+    expect(onReject).toHaveBeenCalledTimes(1);
+    expect(onReject).toHaveBeenCalledWith({ comment: "", remember: null });
+    expect(screen.queryByRole("button", { name: "Really reject?" })).toBeNull();
+  });
+
+  it("undoes the first press with Escape, which stays in the card, and focus goes back", async () => {
+    const onOuterKey = vi.fn();
+    const onApprove = vi.fn();
+    const onReject = vi.fn();
+    render(
+      <div onKeyDown={(event) => onOuterKey(event.key)}>
+        <ApprovalCard title="run" confirmReject onApprove={onApprove} onReject={onReject} />
+      </div>,
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Reject" }));
+    await userEvent.keyboard("{Escape}");
+    expect(screen.queryByRole("button", { name: "Really reject?" })).toBeNull();
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Reject" }));
+    expect(onOuterKey).not.toHaveBeenCalledWith("Escape");
+    expect(onReject).not.toHaveBeenCalled();
+  });
+
+  it("undoes the first press when focus leaves", async () => {
+    const { onReject, reject } = card({ confirmReject: true });
+    await userEvent.click(reject());
+    await userEvent.click(screen.getByRole("button", { name: "Approve" }));
+    expect(screen.queryByRole("button", { name: "Really reject?" })).toBeNull();
+    expect(onReject).not.toHaveBeenCalled();
+  });
+
+  it("undoes the first press when the time runs out", () => {
+    vi.useFakeTimers();
+    const { onReject, reject } = card({ confirmReject: true });
+    fireEvent.click(reject());
+    expect(screen.getByRole("button", { name: "Really reject?" })).toBeTruthy();
+    act(() => void vi.advanceTimersByTime(CONFIRM_REJECT_MS - 1));
+    expect(screen.getByRole("button", { name: "Really reject?" })).toBeTruthy();
+    act(() => void vi.advanceTimersByTime(1));
+    expect(screen.queryByRole("button", { name: "Really reject?" })).toBeNull();
+    expect(onReject).not.toHaveBeenCalled();
+  });
+
+  it("rejects at once without confirmReject", async () => {
+    const { onReject, reject } = card();
+    await userEvent.click(reject());
+    expect(onReject).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("ApprovalCard around its decisions", () => {
+  it("shows a help next to the decisions and the product's footer under them", () => {
+    card({
+      actionsHelp: <button type="button">What ending does</button>,
+      footer: <p>Raised twice before</p>,
+    });
+    const actions = screen.getByRole("button", {
+      name: "Reject",
+    }).parentElement!;
+    expect(within(actions).getByRole("button", { name: "What ending does" })).toBeTruthy();
+    const footer = screen.getByText("Raised twice before");
+    expect(actions.compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("read-only shows what waits without any way to decide", () => {
+    card({
+      readOnly: true,
+      allowComment: true,
+      rememberAgent: "wf/a",
+      extra: <p>Own field</p>,
+      rejectHint: "Ends the run.",
+      children: <p>Facts</p>,
+    });
+    expect(screen.getByRole("article", { name: "Approval: mailer" })).toBeTruthy();
+    expect(screen.getByText("Facts")).toBeTruthy();
+    expect(screen.getByText("Own field")).toBeTruthy();
+    expect(screen.getByText("Ends the run.")).toBeTruthy();
+    expect(screen.queryByRole("button")).toBeNull();
+    expect(screen.queryByRole("textbox")).toBeNull();
+    expect(screen.queryByLabelText("How long")).toBeNull();
   });
 });
 
@@ -293,7 +415,12 @@ describe("SourceList", () => {
     render(
       <SourceList
         sources={[
-          { id: "S1", title: "<b>Bold</b> <script>alert(1)</script>", url: "https://www.example.org/a", badge: <span>found</span> },
+          {
+            id: "S1",
+            title: "<b>Bold</b> <script>alert(1)</script>",
+            url: "https://www.example.org/a",
+            badge: <span>found</span>,
+          },
           { id: "S2", title: "Bad", url: "javascript:alert(1)" },
           { id: "S3", title: " ", url: "https://docs.example.com/p", meta: "10:00" },
         ]}

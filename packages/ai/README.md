@@ -36,5 +36,12 @@ other attributes (`data-*`, `id`) go to the card's root element. A decision bloc
 (a missing comment) stays focusable and is described by the reason next to it (`aria-disabled`, core 0.2.3 `Button`);
 one that cannot be taken at all (sending, time up, an incomplete rule) is disabled.
 
+Since 0.4.0 a card also fits a decision that cannot be undone, such as ending a run: `confirmReject` asks for a
+second press of "Really reject?", which takes focus; Escape (kept inside the card, so a dialog around it stays open),
+moving focus away or `CONFIRM_REJECT_MS` (5 s) undo the first press. `actionsHelp` puts a help button next to the
+decisions, `footer` shows what comes under them (for example earlier decisions) and `readOnly` shows the card without
+comment, remember options and decisions (someone else decides, or it was decided elsewhere). Approving may carry the
+product's own input (an `extra` field): the button stays enabled and the product checks the input in `onApprove`.
+
 Styles: `@import '@nodestro/ui-ai/styles.css';` after the core styles. Texts: keys `ai.*` in six languages
 (`aiMessages`); a product can answer any key itself through `UiTextProvider` from `@nodestro/ui-core`.

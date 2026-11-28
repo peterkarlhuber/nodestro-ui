@@ -8,13 +8,20 @@
 // taken at all (sending, time up, an incomplete rule) is disabled. The product may name the card (`label`), add
 // fields after the comment (`extra`), control the remembered choice and add to its completeness
 // (`rememberIncomplete`, for example while the asking agent is not known yet); other attributes go to the card.
+// A rejection that cannot be undone may ask for a second press (`confirmReject`), a card may show what was decided
+// before under the decisions (`footer`), a help button next to them (`actionsHelp`), or no decisions at all
+// (`readOnly`: someone else decides, or it was decided elsewhere). Approving may also carry the product's own input:
+// the button stays enabled and the product checks that input in onApprove.
 import { Button, Field, TextArea, cx } from "@nodestro/ui-core";
-import { useId, useState, type HTMLAttributes, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type HTMLAttributes, type ReactNode } from "react";
 import { CheckIcon, CoinIcon, CrossIcon, HandIcon, ShieldIcon } from "./icons.js";
 import { useAiText } from "./messages.js";
 import { DEFAULT_REMEMBER, RememberOptions, rememberComplete, type RejectOnlyReason, type RememberChoice } from "./RememberOptions.js";
 
 export type ApprovalKind = "step" | "tool" | "budget";
+
+/** How long an armed second press of a confirmed rejection waits. */
+export const CONFIRM_REJECT_MS = 5000;
 
 /** m:ss for a number of seconds (negative counts as 0). */
 export function formatCountdown(seconds: number): string {
@@ -73,6 +80,14 @@ export interface ApprovalCardProps extends Omit<HTMLAttributes<HTMLElement>, "ti
   onRememberChange?: (value: RememberChoice) => void;
   /** The product's own reason that a chosen rule is not complete yet (for example the asking agent is not known). */
   rememberIncomplete?: boolean;
+  /** Rejecting needs a second press within CONFIRM_REJECT_MS (Escape, leaving the button or the time undo it). */
+  confirmReject?: boolean;
+  /** Show the card without the decisions (someone else decides, or it was decided elsewhere). */
+  readOnly?: boolean;
+  /** A help button next to the decisions. */
+  actionsHelp?: ReactNode;
+  /** Under the decisions, for example what was decided before. */
+  footer?: ReactNode;
 }
 
 const KIND_ICON = { step: HandIcon, tool: ShieldIcon, budget: CoinIcon } as const;
@@ -102,6 +117,10 @@ export function ApprovalCard({
   remember: rememberValue,
   onRememberChange,
   rememberIncomplete = false,
+  confirmReject = false,
+  readOnly = false,
+  actionsHelp,
+  footer,
   ...rest
 }: ApprovalCardProps) {
   const t = useAiText();
@@ -126,6 +145,15 @@ export function ApprovalCard({
     remember: ruleChosen && !(approving && rejectOnly) ? remember : null,
   });
   const hasReview = Boolean(children) || args !== undefined;
+  const [armed, setArmed] = useState(false);
+  const rejectRef = useRef<HTMLButtonElement>(null);
+  const confirmRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!armed) return;
+    confirmRef.current?.focus();
+    const timer = window.setTimeout(() => setArmed(false), CONFIRM_REJECT_MS);
+    return () => window.clearTimeout(timer);
+  }, [armed]);
   return (
     <article {...rest} className={cx("ui-approval", `ui-approval--${kind}`, className)} aria-label={label ?? t("ai.approval.label", { name: title })}>
       <header className="ui-approval__head">
@@ -159,7 +187,7 @@ export function ApprovalCard({
           {expired ? t("ai.approval.expired") : t("ai.approval.timeLeft", { time: formatCountdown(secondsLeft) })}
         </p>
       ) : null}
-      {allowComment ? (
+      {allowComment && !readOnly ? (
         <Field
           label={requireCommentOnReject ? t("ai.approval.commentRequired") : t("ai.approval.comment")}
           hint={t("ai.approval.commentHint")}
@@ -168,7 +196,7 @@ export function ApprovalCard({
         </Field>
       ) : null}
       {extra}
-      {rememberAgent !== null ? (
+      {rememberAgent !== null && !readOnly ? (
         <RememberOptions value={remember} onChange={setRemember} agent={rememberAgent} rejectOnly={rejectOnly} />
       ) : null}
       {rejectHint ? <p className="ui-approval__muted">{rejectHint}</p> : null}
@@ -177,38 +205,68 @@ export function ApprovalCard({
           {error}
         </div>
       ) : null}
-      <div className="ui-approval__actions">
-        <Button
-          variant="primary"
-          icon={<CheckIcon />}
-          busy={pending === "approve"}
-          disabled={busy || expired || (incomplete && !rejectOnly)}
-          aria-describedby={incomplete && !rejectOnly ? reasonId : undefined}
-          onClick={() => onApprove(decision(true))}
-        >
-          {t("ai.approval.approve")}
-        </Button>
-        <Button
-          variant="danger"
-          icon={<CrossIcon />}
-          busy={pending === "reject"}
-          disabled={busy || expired || incomplete}
-          // Blocked until there is a comment, but focusable: the reason next to it says what is missing.
-          aria-disabled={commentMissing && !(busy || expired || incomplete) ? true : undefined}
-          aria-describedby={reason ? reasonId : undefined}
-          onClick={() => {
-            if (!commentMissing) onReject(decision(false));
-          }}
-        >
-          {t("ai.approval.reject")}
-        </Button>
-        {/* The reason sits next to the buttons, not in a tooltip that touch and keyboard users never see. */}
-        {reason ? (
-          <span className="ui-approval__reason" id={reasonId}>
-            {reason}
-          </span>
-        ) : null}
-      </div>
+      {readOnly ? null : (
+        <div className="ui-approval__actions">
+          <Button
+            variant="primary"
+            icon={<CheckIcon />}
+            busy={pending === "approve"}
+            disabled={busy || expired || (incomplete && !rejectOnly)}
+            aria-describedby={incomplete && !rejectOnly ? reasonId : undefined}
+            onClick={() => onApprove(decision(true))}
+          >
+            {t("ai.approval.approve")}
+          </Button>
+          {armed ? (
+            <Button
+              ref={confirmRef}
+              variant="danger"
+              icon={<CrossIcon />}
+              disabled={busy || expired || incomplete}
+              onClick={() => {
+                setArmed(false);
+                onReject(decision(false));
+              }}
+              onBlur={() => setArmed(false)}
+              onKeyDown={(event) => {
+                if (event.key !== "Escape") return;
+                // Undoes only the second press, not a dialog around the card.
+                event.stopPropagation();
+                setArmed(false);
+                rejectRef.current?.focus();
+              }}
+            >
+              {t("ai.approval.rejectConfirm")}
+            </Button>
+          ) : (
+            <Button
+              ref={rejectRef}
+              variant="danger"
+              icon={<CrossIcon />}
+              busy={pending === "reject"}
+              disabled={busy || expired || incomplete}
+              // Blocked until there is a comment, but focusable: the reason next to it says what is missing.
+              aria-disabled={commentMissing && !(busy || expired || incomplete) ? true : undefined}
+              aria-describedby={reason ? reasonId : undefined}
+              onClick={() => {
+                if (commentMissing) return;
+                if (confirmReject) setArmed(true);
+                else onReject(decision(false));
+              }}
+            >
+              {t("ai.approval.reject")}
+            </Button>
+          )}
+          {actionsHelp ? <span className="ui-approval__help">{actionsHelp}</span> : null}
+          {/* The reason sits next to the buttons, not in a tooltip that touch and keyboard users never see. */}
+          {reason ? (
+            <span className="ui-approval__reason" id={reasonId}>
+              {reason}
+            </span>
+          ) : null}
+        </div>
+      )}
+      {footer}
     </article>
   );
 }

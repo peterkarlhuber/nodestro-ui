@@ -3,12 +3,12 @@
   "packages": [
     {
       "name": "@nodestro/ui-ai",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "directory": "packages/ai",
-      "file": "nodestro-ui-ai-0.3.0.tgz",
-      "size": 94236,
-      "sha256": "83df6a199ed814e4a9923b6095a78ce00dc7d974897a7bf100be132fab60f921",
-      "integrity": "sha512-c3+N4j6Tr4HyKiQUEI3AdRe3DZLQpzfteq0YTj/x1l5RFkqqLB8I5/E+SApC3K3tm/GYmPHBKepTTVnBOPr7WA=="
+      "file": "nodestro-ui-ai-0.4.0.tgz",
+      "size": 97308,
+      "sha256": "90094c93a03c8dab4a6de33ccf7d70ef5a4ca6f62a605e26a9366bf0d6650044",
+      "integrity": "sha512-VgVV4kz/qPATzjHIZtcY4hce0AmKKQRjuI+BfzU2zL4YNU2TVzqjoR8pmCL8SuNfjHGuolzr7ZKOHTPhQjB4lw=="
     },
     {
       "name": "@nodestro/ui-core",
